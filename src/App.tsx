@@ -20,7 +20,7 @@ function App() {
         <Route path="/tin-tuc" element={<h1>Tin Tức</h1>} />
         <Route path="/nghia-trang" element={<h1>Nghĩa Trang Trực Tuyến</h1>} />
       </Routes>
-      <Footer />
+      {/* <Footer /> */}
     </>
   );
 }

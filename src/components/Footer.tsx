@@ -2,8 +2,8 @@ import { FaSearch } from "react-icons/fa";
 
 const Footer = () => {
   return (
-    <footer className="bg-blue-500 text-white py-10 mt-5">
-      <div className="w-[1200px] mx-auto">
+    <footer className="bg-[#8B0000] shadow-md text-white py-10 mt-5">
+      <div className="px-10 mx-auto">
         <div className="container mx-auto px-6 grid md:grid-cols-3 gap-6">
           {/* Cột 1: Liên Hệ */}
           <div>

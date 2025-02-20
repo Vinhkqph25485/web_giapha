@@ -12,6 +12,9 @@ import type { Node } from 'relatives-tree/lib/types';
 export const NODE_WIDTH = 70;
 export const NODE_HEIGHT = 80;
 
+console.log("diffParents",diffParents);
+
+
 export const SOURCES = {
   'average-tree.json': averageTree,
   'couple.json': couple,

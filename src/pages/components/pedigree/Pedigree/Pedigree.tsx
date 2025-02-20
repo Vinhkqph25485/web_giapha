@@ -9,6 +9,7 @@ import { NODE_WIDTH, NODE_HEIGHT, SOURCES, DEFAULT_SOURCE } from "../const";
 import { getNodeStyle } from "./utils";
 
 import css from "./Pedigree.module.css";
+import FamilyTreeComponent from "../test/FamilyTreeComponent";
 
 const Pedigree: React.FC = () => {
   const [source, setSource] = useState<string>(DEFAULT_SOURCE);
@@ -48,9 +49,9 @@ const Pedigree: React.FC = () => {
   );
 
   return (
-    <div className="h-screen my-2">
+    <div className="h-screen my-2 ">
       {" "}
-      <div className="grid grid-cols-5 gap-4">
+      <div className="grid grid-cols-5 gap-1">
         <div className="col-span-1">
           <div>
             <SourceSelect
@@ -68,6 +69,7 @@ const Pedigree: React.FC = () => {
               captureWheel
               className={css.wrapper}
             >
+              
               <ReactFamilyTree
                 nodes={nodes}
                 rootId={rootId}
@@ -88,7 +90,7 @@ const Pedigree: React.FC = () => {
               />
             </PinchZoomPan>
           )}
-          {rootId !== firstNodeId && firstNodeId && (
+          {/* {rootId !== firstNodeId && firstNodeId && (
             <button className={css.reset} onClick={resetRootHandler}>
               Reset
             </button>
@@ -101,7 +103,7 @@ const Pedigree: React.FC = () => {
               onHover={setHoverId}
               onClear={() => setHoverId(undefined)}
             />
-          )}
+          )} */}
         </div>
       </div>
     </div>

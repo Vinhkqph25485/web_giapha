@@ -1,5 +1,6 @@
-import React, { memo, useCallback } from "react";
+import React, { memo, useCallback, useState } from "react";
 import type { Node } from "relatives-tree/lib/types";
+import { FaSitemap, FaUsers, FaBook, FaChartBar, FaClock, FaMonument, FaHome } from "react-icons/fa";
 import { URL_LABEL } from "../const";
 
 interface SourceSelectProps {
@@ -13,6 +14,8 @@ export const SourceSelect = memo(function SourceSelect({
   items,
   onChange,
 }: SourceSelectProps) {
+  const [openSection, setOpenSection] = useState(null);
+
   const handleClick = useCallback(
     (key: string) => {
       if (key === URL_LABEL) {
@@ -31,21 +34,22 @@ export const SourceSelect = memo(function SourceSelect({
   );
 
   return (
-    <div className="h-screen">
-      {" "}
-      <div className="flex flex-wrap gap-2">
+    <div className="w-64 h-screen bg-yellow-200 border-l-4 border-red-600 p-4 font-semibold">
+      <div className="bg-red-600 h-4 rounded-t-xl"></div>
+      <ul className="space-y-2 mt-2">
         {Object.keys(items).map((item) => (
-          <button
+          <li
             key={item}
-            className={`w-[200px] py-2 rounded-lg text-white font-semibold transition ${
-              value === item ? "bg-blue-600" : "bg-gray-500 hover:bg-gray-700"
+            className={`flex items-center p-2 bg-yellow-300 hover:bg-yellow-400 rounded cursor-pointer ${
+              value === item ? "bg-yellow-500 text-white" : ""
             }`}
             onClick={() => handleClick(item)}
           >
-            {item}
-          </button>
+            <FaSitemap className="mr-2" /> {item}
+          </li>
         ))}
-      </div>
+      </ul>
+      <div className="bg-red-600 h-4 rounded-b-xl mt-2"></div>
     </div>
   );
 });
