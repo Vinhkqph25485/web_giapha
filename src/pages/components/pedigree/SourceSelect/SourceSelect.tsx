@@ -1,6 +1,14 @@
-import React, { memo, useCallback, useState } from "react";
+import React, { memo, useCallback, useEffect } from "react";
 import type { Node } from "relatives-tree/lib/types";
-import { FaSitemap, FaUsers, FaBook, FaChartBar, FaClock, FaMonument, FaHome } from "react-icons/fa";
+import {
+  FaSitemap,
+  FaUsers,
+  FaBook,
+  FaChartBar,
+  FaClock,
+  FaMonument,
+  FaHome,
+} from "react-icons/fa";
 import { URL_LABEL } from "../const";
 
 interface SourceSelectProps {
@@ -14,8 +22,12 @@ export const SourceSelect = memo(function SourceSelect({
   items,
   onChange,
 }: SourceSelectProps) {
-  const [openSection, setOpenSection] = useState(null);
-
+  useEffect(() => {
+    if (!value && Object.keys(items).length > 0) {
+      const firstKey = Object.keys(items)[0];
+      onChange(firstKey, items[firstKey]);
+    }
+  }, [value, items, onChange]);
   const handleClick = useCallback(
     (key: string) => {
       if (key === URL_LABEL) {
@@ -34,7 +46,7 @@ export const SourceSelect = memo(function SourceSelect({
   );
 
   return (
-    <div className="w-64 h-screen bg-yellow-200 border-l-4 border-red-600 p-4 font-semibold">
+    <div className="w-64 h-screen bg-yellow-200 border-l-4 border-red-600 p-4 font-semibold overflow-y-auto">
       <div className="bg-red-600 h-4 rounded-t-xl"></div>
       <ul className="space-y-2 mt-2">
         {Object.keys(items).map((item) => (

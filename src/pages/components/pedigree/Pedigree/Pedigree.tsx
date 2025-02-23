@@ -7,18 +7,26 @@ import { FamilyNode } from "../FamilyNode/FamilyNode";
 import { NodeDetails } from "../NodeDetails/NodeDetails";
 import { NODE_WIDTH, NODE_HEIGHT, SOURCES, DEFAULT_SOURCE } from "../const";
 import { getNodeStyle } from "./utils";
+import testTreeN2 from "relatives-tree/samples/test-tree-n2.json";
 
 import css from "./Pedigree.module.css";
 import FamilyTreeComponent from "../test/FamilyTreeComponent";
+import { dataFake } from "./data";
+import { dataFake1 } from "./data1";
+import { dataFake2 } from "./data2";
+import { SOURCES1 } from "../const1";
 
 const Pedigree: React.FC = () => {
-  const [source, setSource] = useState<string>(DEFAULT_SOURCE);
-  const [nodes, setNodes] = useState<Readonly<Node>[]>(SOURCES[source] || []);
+  const [source, setSource] = useState<string>(SOURCES1);
+  const [nodes, setNodes] = useState(
+    SOURCES1[source] || SOURCES1["Đại gia Đình"]
+  );
 
   const firstNodeId = useMemo(
     () => (nodes.length > 0 ? nodes[0].id : ""),
     [nodes]
   );
+
   const [rootId, setRootId] = useState<string>(firstNodeId);
   const [selectId, setSelectId] = useState<string | undefined>();
   const [hoverId, setHoverId] = useState<string | undefined>();
@@ -47,6 +55,10 @@ const Pedigree: React.FC = () => {
     () => nodes.find((item) => item.id === selectId),
     [nodes, selectId]
   );
+  
+  console.log("nodes", nodes);
+  console.log("firstNodeId", firstNodeId);
+  console.log("rootId", rootId);
 
   return (
     <div className="h-screen my-2 ">
@@ -56,40 +68,37 @@ const Pedigree: React.FC = () => {
           <div>
             <SourceSelect
               value={source}
-              items={SOURCES}
+              items={SOURCES1}
               onChange={changeSourceHandler}
             />
           </div>
         </div>
         <div className={css.root + " col-span-4"}>
-          {nodes.length > 0 && (
-            <PinchZoomPan
-              min={0.5}
-              max={2.5}
-              captureWheel
-              className={css.wrapper}
-            >
-              
-              <ReactFamilyTree
-                nodes={nodes}
-                rootId={rootId}
-                width={NODE_WIDTH}
-                height={NODE_HEIGHT}
-                className={css.tree}
-                renderNode={(node: Readonly<ExtNode>) => (
-                  <FamilyNode
-                    key={node.id}
-                    node={node}
-                    isRoot={node.id === rootId}
-                    isHover={node.id === hoverId}
-                    onClick={setSelectId}
-                    onSubClick={setRootId}
-                    style={getNodeStyle(node)}
-                  />
-                )}
-              />
-            </PinchZoomPan>
-          )}
+          <PinchZoomPan
+            min={0.5}
+            max={2.5}
+            captureWheel
+            className={css.wrapper}
+          >
+            <ReactFamilyTree
+              nodes={nodes}
+              rootId={rootId}
+              width={NODE_WIDTH}
+              height={NODE_HEIGHT}
+              className={css.tree}
+              renderNode={(node) => (
+                <FamilyNode
+                  key={node.id}
+                  node={node}
+                  isRoot={node.id === rootId}
+                  isHover={node.id === hoverId}
+                  onClick={setSelectId}
+                  onSubClick={setRootId}
+                  style={getNodeStyle(node)}
+                />
+              )}
+            />
+          </PinchZoomPan>
           {/* {rootId !== firstNodeId && firstNodeId && (
             <button className={css.reset} onClick={resetRootHandler}>
               Reset
