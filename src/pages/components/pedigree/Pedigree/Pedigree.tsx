@@ -4,16 +4,11 @@ import ReactFamilyTree from "react-family-tree";
 import { SourceSelect } from "../SourceSelect/SourceSelect";
 import { PinchZoomPan } from "../PinchZoomPan/PinchZoomPan";
 import { FamilyNode } from "../FamilyNode/FamilyNode";
-import { NodeDetails } from "../NodeDetails/NodeDetails";
-import { NODE_WIDTH, NODE_HEIGHT, SOURCES, DEFAULT_SOURCE } from "../const";
+// import { NodeDetails } from "../NodeDetails/NodeDetails";
+import { NODE_WIDTH, NODE_HEIGHT } from "../const";
 import { getNodeStyle } from "./utils";
-import testTreeN2 from "relatives-tree/samples/test-tree-n2.json";
 
 import css from "./Pedigree.module.css";
-import FamilyTreeComponent from "../test/FamilyTreeComponent";
-import { dataFake } from "./data";
-import { dataFake1 } from "./data1";
-import { dataFake2 } from "./data2";
 import { SOURCES1 } from "../const1";
 
 const Pedigree: React.FC = () => {
@@ -55,7 +50,7 @@ const Pedigree: React.FC = () => {
     () => nodes.find((item) => item.id === selectId),
     [nodes, selectId]
   );
-  
+
   console.log("nodes", nodes);
   console.log("firstNodeId", firstNodeId);
   console.log("rootId", rootId);
