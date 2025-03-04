@@ -14,6 +14,7 @@ interface FamilyNodeProps {
   isHover?: boolean;
   onClick: (id: string) => void;
   onSubClick: (id: string) => void;
+  isExpanded: boolean;
   style?: React.CSSProperties;
 }
 const DEFAULT_AVATAR = manJpg;
@@ -25,13 +26,9 @@ export const FamilyNode = React.memo(function FamilyNode({
   isHover,
   onClick,
   onSubClick,
+  isExpanded,
   style,
 }: FamilyNodeProps) {
-  // const clickHandler = useCallback(() => onClick(node.id), [node.id, onClick]);
-  // const clickSubHandler = useCallback(
-  //   () => onSubClick(node.id),
-  //   [node.id, onSubClick]
-  // );
 
   return (
     <div className={css.root} style={style}>
@@ -40,27 +37,30 @@ export const FamilyNode = React.memo(function FamilyNode({
           css.inner,
           css[node.gender],
           isRoot && css.isRoot
-          // isHover && css.isHover
         )}
-        // onClick={clickHandler}
       >
-        <div className="flex flex-col justify-center">
+        <div className="flex flex-col justify-center items-center">
           <img
-            className="p-2"
+            className="p-2 w-12 h-12 rounded-full"
             src={node.gender === "male" ? DEFAULT_AVATAR : DEFAULT_AVATARMAN}
             alt={node.id}
           />
-          <div className="font-bold text-black text-[6px] text-center">
+          <div className="font-bold text-black text-xs text-center">
             {node.id}
+          </div>
+
+          <div className="absolute bottom-0 right-0">
+            {node.children.length > 0 && node.gender === "male" && (
+              <button
+                className="bg-white text-black rounded-full text-xs px-2 py-1 mt-2"
+                onClick={onSubClick}
+              >
+                {isExpanded ? "+" : "-"}
+              </button>
+            )}
           </div>
         </div>
       </div>
-      {/* {node.hasSubTree && (
-        <div
-          className={classNames(css.sub, css[node.gender])}
-          onClick={clickSubHandler}
-        />
-      )} */}
     </div>
   );
 });

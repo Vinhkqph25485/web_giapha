@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "and": "^0.0.3",
+    "antd": "^5.24.2",
     "classnames": "^2.5.1",
     "framer-motion": "^12.4.2",
     "lucide-react": "^0.475.0",
