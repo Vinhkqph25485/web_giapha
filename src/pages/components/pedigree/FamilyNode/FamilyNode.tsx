@@ -44,10 +44,17 @@ export const FamilyNode = React.memo(function FamilyNode({
     setIsModalVisible(false);
   };
 
+  
   const hasChildrenInDefaultNodes = (id: string) => {
     const defaultNode = defaultNodes?.find((n: any) => n.id === id);
-    return defaultNode?.children?.length > 0;
+    if (defaultNode?.children?.length > 0) {
+      return true;
+    }
+    return false;
   };
+
+  console.log("hasChildrenInDefaultNodes", hasChildrenInDefaultNodes(node.id));
+  
 
   return (
     <div className={css.root} style={style}>
@@ -70,7 +77,7 @@ export const FamilyNode = React.memo(function FamilyNode({
           </div>
 
           <div className="absolute bottom-0 right-0">
-            {hasChildrenInDefaultNodes(node.id) && node.gender === "male" && (
+            {hasChildrenInDefaultNodes(node.id) == true && node.gender === "male" && (
               <button
                 className="bg-white text-black rounded-full text-xs px-2 py-1 mt-2"
                 onClick={(e) => {
@@ -86,7 +93,7 @@ export const FamilyNode = React.memo(function FamilyNode({
       </div>
 
       <Modal
-        title="Node Details"
+        title="Chi tiết phả hệ"
         open={isModalVisible}
         onCancel={handleModalClose}
         footer={null}

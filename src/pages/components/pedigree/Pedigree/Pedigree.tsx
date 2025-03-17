@@ -84,70 +84,83 @@ const Pedigree: React.FC = () => {
       setExpanded((prev) => {
         const newExpanded = { ...prev, [id]: !prev[id] };
         const updatedNode = products.find((node) => node.id === id);
+  
         if (updatedNode) {
           const newExpandedValue = newExpanded[id];
+          // Cập nhật trạng thái mở rộng của nút hiện tại
           updateProduct(id, "expanded", newExpandedValue)
-            .then(() => {
-              console.log(`Updated node ${id} successfully`);
-            })
             .catch((error) => {
               console.error(`Failed to update node ${id}:`, error);
             });
-
-          // Update expanded state for spouses, children, and children's spouses
-          const updateChildrenAndSpouses = (nodeId: string, expandedValue: boolean) => {
+  
+          // Cập nhật trạng thái mở rộng của vợ/chồng, con cái và vợ/chồng của con cái
+            const updateChildrenAndSpouses = async (nodeId: string, expandedValue: boolean) => {
             const node = products.find((n) => n.id === nodeId);
             if (node) {
               const spouseIds = node.spouses?.map((spouse) => spouse.id) || [];
               const childIds = node.children?.map((child) => child.id) || [];
-              spouseIds.forEach((spouseId) => {
-                newExpanded[spouseId] = expandedValue;
-                updateProduct(spouseId, "expanded", expandedValue)
-                  .then(() => {
-                    console.log(`Updated spouse node ${spouseId} successfully`);
-                  })
-                  .catch((error) => {
-                    console.error(`Failed to update spouse node ${spouseId}:`, error);
-                  });
+        
+              // Cập nhật vợ/chồng
+              const spousePromises = spouseIds.map((spouseId) => {
+              newExpanded[spouseId] = expandedValue;
+              return updateProduct(spouseId, "expanded", expandedValue)
+                .catch((error) => {
+                console.error(`Failed to update spouse node ${spouseId}:`, error);
+                });
               });
-              childIds.forEach((childId) => {
-                newExpanded[childId] = expandedValue;
-                updateProduct(childId, "expanded", expandedValue)
-                  .then(() => {
-                    console.log(`Updated child node ${childId} successfully`);
-                  })
-                  .catch((error) => {
-                    console.error(`Failed to update child node ${childId}:`, error);
-                  });
-
-                // Update expanded state for children's spouses
+        
+              // Cập nhật con cái
+              const childPromises = childIds.map((childId) => {
+              newExpanded[childId] = expandedValue;
+              return updateProduct(childId, "expanded", expandedValue)
+                .catch((error) => {
+                console.error(`Failed to update child node ${childId}:`, error);
+                });
+              });
+        
+              // Cập nhật vợ/chồng của con cái
+              const childSpousePromises = childIds.map((childId) => {
                 const childNode = products.find((n) => n.id === childId);
                 if (childNode) {
                   const childSpouseIds = childNode.spouses?.map((spouse) => spouse.id) || [];
-                  childSpouseIds.forEach((childSpouseId) => {
-                    newExpanded[childSpouseId] = expandedValue;
-                    updateProduct(childSpouseId, "expanded", expandedValue)
-                      .then(() => {
-                        console.log(`Updated child's spouse node ${childSpouseId} successfully`);
-                      })
-                      .catch((error) => {
-                        console.error(`Failed to update child's spouse node ${childSpouseId}:`, error);
-                      });
-                  });
+                  return Promise.all(
+                    childSpouseIds.map((childSpouseId) => {
+                      newExpanded[childSpouseId] = expandedValue;
+                      return updateProduct(childSpouseId, "expanded", expandedValue)
+                        .catch((error) => {
+                          console.error(`Failed to update child's spouse node ${childSpouseId}:`, error);
+                        });
+                    })
+                  );
                 }
               });
+  
+              // Chờ tất cả các Promise hoàn thành
+              return Promise.all([
+                ...spousePromises,
+                ...childPromises,
+                ...childSpousePromises,
+              ]);
             }
           };
-
-          updateChildrenAndSpouses(id, newExpandedValue);
+  
+          // Cập nhật trạng thái mở rộng cho vợ/chồng, con cái và vợ/chồng của con cái
+          updateChildrenAndSpouses(id, newExpandedValue)
+            .then(() => {
+              console.log(`Successfully updated expanded state for ${id} and its relations`);
+            })
+            .catch((error) => {
+              console.error(`Failed to update expanded state for ${id} and its relations:`, error);
+            });
         }
+  
         return newExpanded;
       });
     },
     [products]
   );
+  
 
-  // Lấy danh sách nodes hiển thị dựa trên trạng thái mở rộng
 
   console.log("expanded", expanded);
 
@@ -158,7 +171,7 @@ const Pedigree: React.FC = () => {
 
       return {
         id: node.id,
-        gender: node.gender || "male",
+        gender: node.gender,
         parents: node.parents || [],
         siblings: node.siblings || [],
         spouses: node.spouses

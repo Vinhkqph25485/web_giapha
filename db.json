@@ -101,8 +101,37 @@
       "generationLevel": 1
     },
     {
+      "id": "child1",
+      "gender": "male",
+      "parents": [
+        {
+          "id": "husband1",
+          "type": "blood"
+        },
+        {
+          "id": "wife1",
+          "type": "blood"
+        }
+      ],
+      "siblings": [],
+      "spouses": [
+        {
+          "id": "child1wife",
+          "type": "married"
+        }
+      ],
+      "children": [
+        {
+          "id": "child1kid",
+          "type": "blood"
+        },
+        {
+          "id": "child1kid2",
+          "type": "blood"
+        }
+      ],
       "expanded": true,
-      "id": "child1"
+      "generationLevel": 2
     },
     {
       "id": "child2",
@@ -138,8 +167,37 @@
       "generationLevel": 2
     },
     {
+      "id": "child3",
+      "gender": "male",
+      "parents": [
+        {
+          "id": "husband1",
+          "type": "blood"
+        },
+        {
+          "id": "wife1",
+          "type": "blood"
+        }
+      ],
+      "siblings": [],
+      "spouses": [
+        {
+          "id": "child3wife",
+          "type": "married"
+        }
+      ],
+      "children": [
+        {
+          "id": "child3kid1",
+          "type": "blood"
+        },
+        {
+          "id": "child3kid2",
+          "type": "blood"
+        }
+      ],
       "expanded": true,
-      "id": "child3"
+      "generationLevel": 2
     },
     {
       "id": "child4",
@@ -172,11 +230,13 @@
     },
     {
       "expanded": true,
-      "id": "child5"
+      "id": "child5",
+      "gender": "male"
     },
     {
       "expanded": true,
-      "id": "child6"
+      "id": "child6",
+      "gender": "male"
     },
     {
       "id": "child1wife",
@@ -199,12 +259,13 @@
           "type": "blood"
         }
       ],
-      "expanded": false,
+      "expanded": true,
       "generationLevel": 2
     },
     {
       "expanded": true,
-      "id": "child2husband"
+      "id": "child2husband",
+      "gender": "male"
     },
     {
       "id": "child3wife",
@@ -227,12 +288,13 @@
           "type": "blood"
         }
       ],
-      "expanded": false,
+      "expanded": true,
       "generationLevel": 2
     },
     {
       "expanded": true,
-      "id": "child4husband"
+      "id": "child4husband",
+      "gender": "male"
     },
     {
       "id": "child5wife",
@@ -277,8 +339,9 @@
       "generationLevel": 2
     },
     {
-      "expanded": false,
-      "id": "child1kid"
+      "expanded": true,
+      "id": "child1kid",
+      "gender": "male"
     },
     {
       "id": "child1kid2",
@@ -296,7 +359,7 @@
       "siblings": [],
       "spouses": [],
       "children": [],
-      "expanded": false,
+      "expanded": true,
       "generationLevel": 3
     },
     {
@@ -348,8 +411,9 @@
       "generationLevel": 3
     },
     {
-      "expanded": false,
-      "id": "child3kid1"
+      "expanded": true,
+      "id": "child3kid1",
+      "gender": "male"
     },
     {
       "id": "child3kid2",
@@ -377,7 +441,7 @@
           "type": "blood"
         }
       ],
-      "expanded": false,
+      "expanded": true,
       "generationLevel": 3
     },
     {
@@ -396,7 +460,7 @@
       "siblings": [],
       "spouses": [],
       "children": [],
-      "expanded": false,
+      "expanded": true,
       "generationLevel": 3
     },
     {

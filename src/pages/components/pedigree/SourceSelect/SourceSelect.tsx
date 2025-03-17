@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect } from "react";
+import { memo, useCallback, useEffect } from "react";
 import type { Node } from "relatives-tree/lib/types";
 import {
   FaSitemap,
@@ -48,6 +48,17 @@ export const SourceSelect = memo(function SourceSelect({
   return (
     <div className="w-64 h-screen bg-yellow-200 border-l-4 border-red-600 p-4 font-semibold overflow-y-auto">
       <div className="bg-red-600 h-4 rounded-t-xl"></div>
+      <input
+        type="text"
+        placeholder="Search..."
+        className="w-full p-2 mt-2 mb-4 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-600"
+        onChange={(e) => {
+          const searchValue = e.target.value.toLowerCase();
+          const filteredItems = Object.keys(items).filter((item) =>
+        item.toLowerCase().includes(searchValue)
+          );
+        }}
+      />
       <ul className="space-y-2 mt-2">
         {Object.keys(items).map((item) => (
           <li
