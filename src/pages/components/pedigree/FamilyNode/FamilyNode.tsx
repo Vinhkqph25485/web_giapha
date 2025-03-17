@@ -1,9 +1,11 @@
-import React, { useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import type { ExtNode } from "relatives-tree/lib/types";
 import css from "./FamilyNode.module.css";
 import classNames from "classnames";
+import { Modal } from "antd";
 import manJpg from "./man.jpg";
 import womanJpg from "./woman.jpg";
+
 interface MyExtNode1 extends ExtNode {
   hasSubTree?: boolean;
 }
@@ -16,7 +18,9 @@ interface FamilyNodeProps {
   onSubClick: (id: string) => void;
   isExpanded: boolean;
   style?: React.CSSProperties;
+  defaultNodes?: any;
 }
+
 const DEFAULT_AVATAR = manJpg;
 const DEFAULT_AVATARMAN = womanJpg;
 
@@ -28,7 +32,22 @@ export const FamilyNode = React.memo(function FamilyNode({
   onSubClick,
   isExpanded,
   style,
+  defaultNodes
 }: FamilyNodeProps) {
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
+  const handleNodeClick = () => {
+    setIsModalVisible(true);
+  };
+
+  const handleModalClose = () => {
+    setIsModalVisible(false);
+  };
+
+  const hasChildrenInDefaultNodes = (id: string) => {
+    const defaultNode = defaultNodes?.find((n: any) => n.id === id);
+    return defaultNode?.children?.length > 0;
+  };
 
   return (
     <div className={css.root} style={style}>
@@ -38,6 +57,7 @@ export const FamilyNode = React.memo(function FamilyNode({
           css[node.gender],
           isRoot && css.isRoot
         )}
+        onClick={handleNodeClick}
       >
         <div className="flex flex-col justify-center items-center">
           <img
@@ -50,10 +70,13 @@ export const FamilyNode = React.memo(function FamilyNode({
           </div>
 
           <div className="absolute bottom-0 right-0">
-            {node.children.length > 0 && node.gender === "male" && (
+            {hasChildrenInDefaultNodes(node.id) && node.gender === "male" && (
               <button
                 className="bg-white text-black rounded-full text-xs px-2 py-1 mt-2"
-                onClick={onSubClick}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSubClick(node.id);
+                }}
               >
                 {isExpanded ? "+" : "-"}
               </button>
@@ -61,6 +84,26 @@ export const FamilyNode = React.memo(function FamilyNode({
           </div>
         </div>
       </div>
+
+      <Modal
+        title="Node Details"
+        open={isModalVisible}
+        onCancel={handleModalClose}
+        footer={null}
+        className={css.modal}
+      >
+        <div className="flex flex-col items-center">
+          <p className="font-bold text-lg">ID: {node.id}</p>
+          <p className="text-sm">Gender: {node.gender}</p>
+          <p className="text-sm">Children: {node.children.length}</p>
+          <img
+            className="p-2 w-24 h-24 rounded-full mt-4"
+            src={node.gender === "male" ? DEFAULT_AVATAR : DEFAULT_AVATARMAN}
+            alt={node.id}
+          />
+          {/* Add more details as needed */}
+        </div>
+      </Modal>
     </div>
   );
 });

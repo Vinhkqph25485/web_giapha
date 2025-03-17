@@ -17,7 +17,7 @@ export const dataFake2 = [
       { id: "child5", type: "blood" },
       { id: "child6", type: "blood" },
     ],
-    expanded: false,
+    expanded: true,
     generationLevel: 1,
   },
   {
@@ -33,7 +33,7 @@ export const dataFake2 = [
       { id: "child4", type: "blood" },
       { id: "child5", type: "blood" },
     ],
-    expanded: false,
+    expanded: true,
     generationLevel: 1,
   },
   {
@@ -43,7 +43,7 @@ export const dataFake2 = [
     siblings: [],
     spouses: [{ id: "husband1", type: "married" }],
     children: [{ id: "child6", type: "blood" }],
-    expanded: false,
+    expanded: true,
     generationLevel: 1,
   },
 
@@ -61,7 +61,7 @@ export const dataFake2 = [
       { id: "child1kid", type: "blood" },
       { id: "child1kid2", type: "blood" },
     ],
-    expanded: false,
+    expanded: true,
     generationLevel: 2,
   },
   {
@@ -77,7 +77,7 @@ export const dataFake2 = [
       { id: "child2kid", type: "blood" },
       { id: "child2kid2", type: "blood" },
     ],
-    expanded: false,
+    expanded: true,
     generationLevel: 2,
   },
   {
@@ -93,7 +93,7 @@ export const dataFake2 = [
       { id: "child3kid1", type: "blood" },
       { id: "child3kid2", type: "blood" },
     ],
-    expanded: false,
+    expanded: true,
     generationLevel: 2,
   },
   {
@@ -106,7 +106,7 @@ export const dataFake2 = [
     siblings: [],
     spouses: [{ id: "child4husband", type: "married" }],
     children: [{ id: "child4kid", type: "blood" }],
-    expanded: false,
+    expanded: true,
     generationLevel: 2,
   },
   {
@@ -119,7 +119,7 @@ export const dataFake2 = [
     siblings: [],
     spouses: [{ id: "child5wife", type: "married" }],
     children: [{ id: "child5kid", type: "blood" }],
-    expanded: false,
+    expanded: true,
     generationLevel: 2,
   },
   {
@@ -135,7 +135,7 @@ export const dataFake2 = [
       { id: "child6kid1", type: "blood" },
       { id: "child6kid2", type: "blood" },
     ],
-    expanded: false,
+    expanded: true,
     generationLevel: 2,
   },
 
@@ -150,7 +150,7 @@ export const dataFake2 = [
       { id: "child1kid", type: "blood" },
       { id: "child1kid2", type: "blood" },
     ],
-    expanded: false,
+    expanded: true,
     generationLevel: 2,
   },
   {
@@ -163,7 +163,7 @@ export const dataFake2 = [
       { id: "child2kid", type: "blood" },
       { id: "child2kid2", type: "blood" },
     ],
-    expanded: false,
+    expanded: true,
     generationLevel: 2,
   },
   {
@@ -176,7 +176,7 @@ export const dataFake2 = [
       { id: "child3kid1", type: "blood" },
       { id: "child3kid2", type: "blood" },
     ],
-    expanded: false,
+    expanded: true,
     generationLevel: 2,
   },
   {
