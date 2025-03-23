@@ -1,6 +1,7 @@
 import React, { useMemo, useState, useCallback, useEffect } from "react";
 import type { Node } from "relatives-tree/lib/types";
 import ReactFamilyTree from "react-family-tree";
+import { useLocation } from "react-router-dom"; // Add this import
 import { SourceSelect } from "../SourceSelect/SourceSelect";
 import { PinchZoomPan } from "../PinchZoomPan/PinchZoomPan";
 import { FamilyNode } from "../FamilyNode/FamilyNode";
@@ -13,12 +14,17 @@ import { useProducts, useUpdateProduct } from "../../../../services/api";
 import Navbar from "../../../../components/Navbar";
 
 const Pedigree: React.FC = () => {
+  const location = useLocation(); // Get current location
+  const isPhaDoRoute = location.pathname === "/pha-do"; // Check if we're at "/pha-do" route
+
   const [searchValue, setSearchValue] = useState<string>("");
   const {
     data: productsData,
     isLoading,
     isError,
-  } = useProducts({ search: searchValue });
+  } = useProducts({
+    search: isPhaDoRoute ? undefined : searchValue, // Don't apply search filter on "/pha-do" route
+  });
   const products = useMemo(() => productsData?.products || [], [productsData]);
   const defaultSource = "Đại gia Đình"; // Định nghĩa mặc định
   const [source, setSource] = useState<string>(defaultSource);
@@ -186,7 +192,10 @@ const Pedigree: React.FC = () => {
 
   return (
     <>
-      <Navbar setSearchValue={setSearchValue} />
+      <Navbar
+        setSearchValue={setSearchValue}
+        hideSearch={isPhaDoRoute} // Pass hideSearch prop to Navbar
+      />
       <div className="px-10 mx-auto">
         <div className="w-full h-screen font-light text-[#222] antialiased leading-[1.5]">
           <div className="h-screen my-2">
