@@ -44,6 +44,8 @@ export const FamilyNode = React.memo(function FamilyNode({
     setIsModalVisible(false);
   };
 
+  console.log("node.children", node.children);
+
   const hasChildrenInDefaultNodes = (id: string) => {
     const defaultNode = defaultNodes?.find((n: any) => n.id === id);
     if (defaultNode?.children?.length > 0) {
@@ -65,11 +67,11 @@ export const FamilyNode = React.memo(function FamilyNode({
         <div className="flex flex-col justify-center items-center">
           <img
             className="p-2 w-12 h-12 rounded-full"
-            src={node.gender === "male" ? DEFAULT_AVATAR : DEFAULT_AVATARMAN}
+            src={node.image_url}
             alt={node.id}
           />
           <div className="font-bold text-black text-xs text-center">
-            {node.id}
+            {node.name}
           </div>
 
           <div className="absolute bottom-0 right-0">
@@ -90,22 +92,49 @@ export const FamilyNode = React.memo(function FamilyNode({
       </div>
 
       <Modal
-        title="Chi tiết phả hệ"
+        title={node.name}
         open={isModalVisible}
         onCancel={handleModalClose}
         footer={null}
         className={css.modal}
       >
         <div className="flex flex-col items-center">
-          <p className="font-bold text-lg">ID: {node.id}</p>
-          <p className="text-sm">Gender: {node.gender}</p>
-          <p className="text-sm">Children: {node.children.length}</p>
-          <img
-            className="p-2 w-24 h-24 rounded-full mt-4"
-            src={node.gender === "male" ? DEFAULT_AVATAR : DEFAULT_AVATARMAN}
-            alt={node.id}
-          />
-          {/* Add more details as needed */}
+          <div className="text-center mb-4">
+          <p className="text-lg font-semibold">
+              {node.gender === "male" ? "👨 Nam" : "👩 Nữ"}  {node.family_rank} - Thế hệ thứ {node.generation_level}
+            </p>
+            <p className="text-sm">
+              Sinh ngày {node.date_of_birth ? 
+                (() => {
+                  const date = new Date(node.date_of_birth);
+                  return !isNaN(date.getTime()) ? 
+                    `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}` : 
+                    node.date_of_birth;
+                })() : ""}{" "}
+              {node.date_of_death ? 
+                `- Mất ngày: ${(() => {
+                  const date = new Date(node.date_of_death);
+                  return !isNaN(date.getTime()) ? 
+                    `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}` : 
+                    node.date_of_death;
+                })()}` : ""}
+            </p>
+          </div>
+          <div className="flex justify-center mb-4">
+            <img
+              className="p-2 w-24 h-24 rounded-full"
+              src={node.image_url}
+              alt={node.id}
+            />
+          </div>
+
+          <div className="text-left w-full px-4">
+            {node.children.length > 0 && (
+              <p className="text-sm mb-2">Số con: {node.children.length}</p>
+            )}
+            <p className="text-sm mb-2">Địa chỉ: {node.permanent_address}</p>
+            <p className="text-sm mb-2">{node.description}</p>
+          </div>
         </div>
       </Modal>
     </div>

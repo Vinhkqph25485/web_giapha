@@ -30,11 +30,16 @@ const removeProduct = async (id: number) => {
 };
 
 // React Query hooks
-export const useProducts = () => {
+export const useProducts = (searchParams?: Record<string, any>) => {
   return useQuery({
-    queryKey: ['products'],
-    queryFn: fetchProducts,
+    queryKey: ['products', searchParams],
+    queryFn: () => fetchProductsWithParams(searchParams),
   });
+};
+
+const fetchProductsWithParams = async (params?: Record<string, any>) => {
+  const response = await axios.get(API_URL, { params });
+  return response.data;
 };
 
 export const useProduct = (id: number) => {

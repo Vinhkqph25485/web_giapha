@@ -10,8 +10,8 @@ import testTreeN2 from 'relatives-tree/samples/test-tree-n2.json';
 import type { Node } from 'relatives-tree/lib/types';
 import { dataFake } from './Pedigree/data';
 
-export const NODE_WIDTH = 80;
-export const NODE_HEIGHT = 110;
+export const NODE_WIDTH = 100;
+export const NODE_HEIGHT = 130;
 
 
 export const SOURCES = {

@@ -12,20 +12,20 @@ import { NodeDetails } from "../NodeDetails/NodeDetails";
 import { useProducts, useUpdateProduct } from "../../../../services/api";
 
 const Pedigree: React.FC = () => {
+  const { data: productsData, isLoading, isError } = useProducts();
+  const products = useMemo(() => productsData?.products || [], [productsData]);
   const defaultSource = "Đại gia Đình"; // Định nghĩa mặc định
   const [source, setSource] = useState<string>(defaultSource);
   const [nodes, setNodes] = useState<Node[]>(SOURCES1[defaultSource] || []);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
   // Use React Query to fetch products
-  const { data: productsData, isLoading, isError } = useProducts();
-  const products = useMemo(() => productsData?.data || [], [productsData]);
-  
+
   // Set up mutation for updating products
   const updateProductMutation = useUpdateProduct();
 
   console.log("products", products);
-  console.log("products", productsData);
+  console.log("productsData", productsData);
 
   const firstNodeId = useMemo(
     () => (nodes.length > 0 ? nodes[0].id : ""),
@@ -86,59 +86,34 @@ const Pedigree: React.FC = () => {
 
         if (updatedNode) {
           const newExpandedValue = newExpanded[id];
-          
-          // Cập nhật trạng thái mở rộng của nút hiện tại
-          updateProductMutation.mutate({ 
-            id, 
-            field: "expanded", 
-            value: newExpandedValue 
-          });
 
-          // Cập nhật trạng thái mở rộng của vợ/chồng và con cái
-          const updateChildrenAndSpouses = async (
-            nodeId: string,
-            expandedValue: boolean
-          ) => {
+          // Collect all IDs to update
+          const idsToUpdate = [id];
+
+          // Collect spouse and children IDs
+          const collectRelatedIds = (nodeId: string) => {
             const node = products.find((n) => n.id === nodeId);
             if (node) {
               const spouseIds = node.spouses?.map((spouse) => spouse.id) || [];
               const childIds = node.children?.map((child) => child.id) || [];
-
-              // Cập nhật vợ/chồng
-              spouseIds.forEach((spouseId) => {
-                newExpanded[spouseId] = expandedValue;
-                updateProductMutation.mutate({
-                  id: spouseId,
-                  field: "expanded",
-                  value: expandedValue
-                });
-              });
-
-              // Cập nhật con cái
-              childIds.forEach((childId) => {
-                newExpanded[childId] = expandedValue;
-                updateProductMutation.mutate({
-                  id: childId,
-                  field: "expanded",
-                  value: expandedValue
-                });
-              });
+              idsToUpdate.push(...spouseIds, ...childIds);
             }
           };
 
-          // Cập nhật trạng thái mở rộng cho vợ/chồng và con cái
-          updateChildrenAndSpouses(id, newExpandedValue)
-            .then(() => {
-              console.log(
-                `Successfully updated expanded state for ${id} and its immediate relations`
-              );
-            })
-            .catch((error) => {
-              console.error(
-                `Failed to update expanded state for ${id} and its immediate relations:`,
-                error
-              );
-            });
+          // Collect IDs for the current node, its spouses, and children
+          collectRelatedIds(id);
+
+          // Update expanded state for all collected IDs
+          idsToUpdate.forEach((updateId) => {
+            newExpanded[updateId] = newExpandedValue;
+          });
+
+          // Call API to update expanded state for all collected IDs
+          updateProductMutation.mutate({
+            ids: idsToUpdate,
+            field: "expanded",
+            value: newExpandedValue,
+          });
         }
 
         return newExpanded;
@@ -150,9 +125,10 @@ const Pedigree: React.FC = () => {
   console.log("expanded", expanded);
 
   const transformNodes = useCallback(() => {
-    return products?.products?.map((node) => {
+    return products?.map((node) => {
       // Sử dụng node.expanded có sẵn trong data, nếu không tồn tại thì mặc định là false.
-      const isExpanded = expanded[node.id] !== undefined ? expanded[node.id] : false;
+      const isExpanded =
+        expanded[node.id] !== undefined ? expanded[node.id] : !!node.expanded;
 
       return {
         id: node.id,
@@ -160,6 +136,10 @@ const Pedigree: React.FC = () => {
         gender: node.gender,
         image_url: node.image_url,
         description: node.description,
+        date_of_birth: node.date_of_birth,
+        date_of_death: node.date_of_death,
+        family_rank: node.family_rank,
+        permanent_address: node.permanent_address,
         parents: node.parents || [],
         siblings: node.siblings || [],
         spouses: node.spouses
@@ -171,7 +151,7 @@ const Pedigree: React.FC = () => {
             ? node.children.map((child) => ({ id: child.id, type: child.type }))
             : []
           : [],
-        // Tương tự đối với descendants 
+        // Tương tự đối với descendants
         descendants: isExpanded
           ? node.descendants
             ? node.descendants.map((descendant) => ({
@@ -180,18 +160,23 @@ const Pedigree: React.FC = () => {
               }))
             : []
           : [],
-        // Gán lại expanded từ expanded state hoặc false nếu không có
+        // Gán lại expanded từ expanded state hoặc sử dụng giá trị trong data nếu có
         expanded: isExpanded,
-        generation_level: node.generation_level || 1,
+        generation_level: node.generation_level || node.generationLevel || 1,
       };
     });
   }, [products, expanded]);
   console.log("transformNodes()", transformNodes());
-  
 
   // Handle loading and error states
-  if (isLoading) return <div className="text-center p-4">Loading family data...</div>;
-  if (isError) return <div className="text-center p-4 text-red-500">Error loading family data</div>;
+  if (isLoading)
+    return <div className="text-center p-4">Loading family data...</div>;
+  if (isError)
+    return (
+      <div className="text-center p-4 text-red-500">
+        Error loading family data
+      </div>
+    );
 
   return (
     <div className="h-screen my-2">
@@ -211,8 +196,8 @@ const Pedigree: React.FC = () => {
             className={css.wrapper}
           >
             <ReactFamilyTree
-              nodes={products?.products && products?.products? transformNodes() : nodes}
-              rootId={rootId}
+              nodes={products?.length > 0 ? transformNodes() : nodes}
+              rootId={products?.[0]?.id || ""}
               width={NODE_WIDTH}
               height={NODE_HEIGHT}
               className={css.tree}
