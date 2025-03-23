@@ -10,6 +10,7 @@ import css from "./Pedigree.module.css";
 import { SOURCES1 } from "../const1";
 import { NodeDetails } from "../NodeDetails/NodeDetails";
 import { useProducts, useUpdateProduct } from "../../../../services/api";
+import Navbar from "../../../../components/Navbar";
 
 const Pedigree: React.FC = () => {
   const [searchValue, setSearchValue] = useState<string>("");
@@ -184,9 +185,70 @@ const Pedigree: React.FC = () => {
     );
 
   return (
-    <div className="h-screen my-2">
-      <div className="grid grid-cols-5 gap-1">
-        <div className="col-span-1">
+    <>
+      <Navbar setSearchValue={setSearchValue} />
+      <div className="px-10 mx-auto">
+        <div className="w-full h-screen font-light text-[#222] antialiased leading-[1.5]">
+          <div className="h-screen my-2">
+            <div className={css.root}>
+              {isLoading && (
+                <div className="text-center p-4">Loading family data...</div>
+              )}
+              <PinchZoomPan
+                min={0.1}
+                max={2.5}
+                captureWheel
+                className={css.wrapper}
+              >
+                {!isLoading && (
+                  <>
+                    <ReactFamilyTree
+                      nodes={products?.length > 0 ? transformNodes() : nodes}
+                      rootId={products?.[0]?.id || ""}
+                      width={NODE_WIDTH}
+                      height={NODE_HEIGHT}
+                      className={css.tree}
+                      renderNode={(node) => (
+                        <FamilyNode
+                          key={node.id}
+                          node={node}
+                          isRoot={node.id === rootId}
+                          isExpanded={!!expanded[node.id]}
+                          onClick={() => setSelectedId(node.id)}
+                          onSubClick={() => toggleExpand(node.id)}
+                          style={getNodeStyle(node)}
+                          defaultNodes={products}
+                        />
+                      )}
+                    />
+                  </>
+                )}
+              </PinchZoomPan>
+
+              {/* Reset khi rootId không phải firstNodeId */}
+              {rootId !== firstNodeId && firstNodeId && (
+                <button
+                  className={css.reset}
+                  onClick={() => setRootId(firstNodeId)}
+                >
+                  Reset
+                </button>
+              )}
+            </div>
+            <div className="col-span-5">
+              {/* Hiển thị chi tiết người được chọn */}
+              {selected && (
+                <NodeDetails
+                  node={selected}
+                  className={css.details}
+                  onSelect={setSelectId}
+                  onHover={setHoverId}
+                  onClear={() => setHoverId(undefined)}
+                />
+              )}
+            </div>
+            {/* <div className="">
+        <div className="">
           <SourceSelect
             value={source}
             items={SOURCES1}
@@ -194,65 +256,11 @@ const Pedigree: React.FC = () => {
             setSearchValue={setSearchValue}
           />
         </div>
-        <div className={css.root + " col-span-4"}>
-          {isLoading && (
-            <div className="text-center p-4">Loading family data...</div>
-          )}
-          <PinchZoomPan
-            min={0.1}
-            max={2.5}
-            captureWheel
-            className={css.wrapper}
-          >
-            {!isLoading && (
-              <>
-                <ReactFamilyTree
-                  nodes={products?.length > 0 ? transformNodes() : nodes}
-                  rootId={products?.[0]?.id || ""}
-                  width={NODE_WIDTH}
-                  height={NODE_HEIGHT}
-                  className={css.tree}
-                  renderNode={(node) => (
-                    <FamilyNode
-                      key={node.id}
-                      node={node}
-                      isRoot={node.id === rootId}
-                      isExpanded={!!expanded[node.id]}
-                      onClick={() => setSelectedId(node.id)}
-                      onSubClick={() => toggleExpand(node.id)}
-                      style={getNodeStyle(node)}
-                      defaultNodes={products}
-                    />
-                  )}
-                />
-              </>
-            )}
-          </PinchZoomPan>
-
-          {/* Reset khi rootId không phải firstNodeId */}
-          {rootId !== firstNodeId && firstNodeId && (
-            <button
-              className={css.reset}
-              onClick={() => setRootId(firstNodeId)}
-            >
-              Reset
-            </button>
-          )}
-        </div>
-        <div className="col-span-5">
-          {/* Hiển thị chi tiết người được chọn */}
-          {selected && (
-            <NodeDetails
-              node={selected}
-              className={css.details}
-              onSelect={setSelectId}
-              onHover={setHoverId}
-              onClear={() => setHoverId(undefined)}
-            />
-          )}
+      </div> */}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

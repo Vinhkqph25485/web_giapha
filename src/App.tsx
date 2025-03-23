@@ -4,6 +4,7 @@ import HomePage from "./pages/HomePage";
 import Navbar from "./components/Navbar";
 import Introduce from "./pages/Introduce";
 import { useProducts } from "./services/api";
+import Pedigree from "./pages/components/pedigree/Pedigree/Pedigree";
 function App() {
   const { data: productsData, isLoading, isError } = useProducts();
   console.log("products", productsData);
@@ -11,12 +12,11 @@ function App() {
   return (
     <>
 
-        <Navbar />
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/gioi-thieu" element={<h1>Giới Thiệu</h1>} />
           <Route path="/pha-ky" element={<h1>Phả Ký</h1>} />
-          <Route path="/pha-do" element={<Introduce />} />
+          <Route path="/pha-do" element={<Pedigree />} />
           <Route path="/pha-do/cay-pha-do" element={<h1>Cây Phả Đồ</h1>} />
           <Route
             path="/pha-do/so-do-gia-toc"
