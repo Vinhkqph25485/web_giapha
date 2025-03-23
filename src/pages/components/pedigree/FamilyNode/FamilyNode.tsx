@@ -32,7 +32,7 @@ export const FamilyNode = React.memo(function FamilyNode({
   onSubClick,
   isExpanded,
   style,
-  defaultNodes
+  defaultNodes,
 }: FamilyNodeProps) {
   const [isModalVisible, setIsModalVisible] = useState(false);
 
@@ -44,7 +44,6 @@ export const FamilyNode = React.memo(function FamilyNode({
     setIsModalVisible(false);
   };
 
-  
   const hasChildrenInDefaultNodes = (id: string) => {
     const defaultNode = defaultNodes?.find((n: any) => n.id === id);
     if (defaultNode?.children?.length > 0) {
@@ -52,9 +51,6 @@ export const FamilyNode = React.memo(function FamilyNode({
     }
     return false;
   };
-
-  console.log("hasChildrenInDefaultNodes", hasChildrenInDefaultNodes(node.id));
-  
 
   return (
     <div className={css.root} style={style}>
@@ -77,17 +73,18 @@ export const FamilyNode = React.memo(function FamilyNode({
           </div>
 
           <div className="absolute bottom-0 right-0">
-            {hasChildrenInDefaultNodes(node.id) == true && node.gender === "male" && (
-              <button
-                className="bg-white text-black rounded-full text-xs px-2 py-1 mt-2"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onSubClick(node.id);
-                }}
-              >
-                {isExpanded ? "+" : "-"}
-              </button>
-            )}
+            {hasChildrenInDefaultNodes(node.id) == true &&
+              node.gender === "male" && (
+                <button
+                  className="bg-white text-black rounded-full text-xs px-2 py-1 mt-2"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onSubClick(node.id);
+                  }}
+                >
+                  {isExpanded ? "-" : "+"}
+                </button>
+              )}
           </div>
         </div>
       </div>
