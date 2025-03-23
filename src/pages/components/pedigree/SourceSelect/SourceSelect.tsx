@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect } from "react";
+import { memo, useCallback, useEffect, useState } from "react";
 import type { Node } from "relatives-tree/lib/types";
 import {
   FaSitemap,
@@ -15,19 +15,23 @@ interface SourceSelectProps {
   value: string;
   items: Record<string, readonly Readonly<Node>[]>;
   onChange: (value: string, nodes: readonly Readonly<Node>[]) => void;
+  setSearchValue: (value: string) => void;
 }
 
 export const SourceSelect = memo(function SourceSelect({
   value,
   items,
   onChange,
+  setSearchValue,
 }: SourceSelectProps) {
-  useEffect(() => {
-    if (!value && Object.keys(items).length > 0) {
-      const firstKey = Object.keys(items)[0];
-      onChange(firstKey, items[firstKey]);
-    }
-  }, [value, items, onChange]);
+  const [searchValueNew, setSearchValueNew] = useState<string>("");
+
+  console.log("searchValueNew", searchValueNew);
+
+  const handleSearch = () => {
+    setSearchValue(searchValueNew);
+  };
+
   const handleClick = useCallback(
     (key: string) => {
       if (key === URL_LABEL) {
@@ -52,13 +56,13 @@ export const SourceSelect = memo(function SourceSelect({
         type="text"
         placeholder="Search..."
         className="w-full p-2 mt-2 mb-4 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-600"
+        value={searchValueNew}
         onChange={(e) => {
-          const searchValue = e.target.value.toLowerCase();
-          const filteredItems = Object.keys(items).filter((item) =>
-        item.toLowerCase().includes(searchValue)
-          );
+          const searchValue = e.target.value
+          setSearchValueNew(searchValue);
         }}
       />
+      <button onClick={handleSearch}>Tìm kiếm</button>
       <ul className="space-y-2 mt-2">
         {Object.keys(items).map((item) => (
           <li

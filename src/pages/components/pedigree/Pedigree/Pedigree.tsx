@@ -12,10 +12,16 @@ import { NodeDetails } from "../NodeDetails/NodeDetails";
 import { useProducts, useUpdateProduct } from "../../../../services/api";
 
 const Pedigree: React.FC = () => {
-  const { data: productsData, isLoading, isError } = useProducts();
+  const [searchValue, setSearchValue] = useState<string>("");
+  const {
+    data: productsData,
+    isLoading,
+    isError,
+  } = useProducts({ search: searchValue });
   const products = useMemo(() => productsData?.products || [], [productsData]);
   const defaultSource = "Đại gia Đình"; // Định nghĩa mặc định
   const [source, setSource] = useState<string>(defaultSource);
+
   const [nodes, setNodes] = useState<Node[]>(SOURCES1[defaultSource] || []);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
@@ -169,8 +175,7 @@ const Pedigree: React.FC = () => {
   console.log("transformNodes()", transformNodes());
 
   // Handle loading and error states
-  if (isLoading)
-    return <div className="text-center p-4">Loading family data...</div>;
+
   if (isError)
     return (
       <div className="text-center p-4 text-red-500">
@@ -186,34 +191,42 @@ const Pedigree: React.FC = () => {
             value={source}
             items={SOURCES1}
             onChange={changeSourceHandler}
+            setSearchValue={setSearchValue}
           />
         </div>
         <div className={css.root + " col-span-4"}>
+          {isLoading && (
+            <div className="text-center p-4">Loading family data...</div>
+          )}
           <PinchZoomPan
-            min={0.5}
+            min={0.1}
             max={2.5}
             captureWheel
             className={css.wrapper}
           >
-            <ReactFamilyTree
-              nodes={products?.length > 0 ? transformNodes() : nodes}
-              rootId={products?.[0]?.id || ""}
-              width={NODE_WIDTH}
-              height={NODE_HEIGHT}
-              className={css.tree}
-              renderNode={(node) => (
-                <FamilyNode
-                  key={node.id}
-                  node={node}
-                  isRoot={node.id === rootId}
-                  isExpanded={!!expanded[node.id]}
-                  onClick={() => setSelectedId(node.id)}
-                  onSubClick={() => toggleExpand(node.id)}
-                  style={getNodeStyle(node)}
-                  defaultNodes={products}
+            {!isLoading && (
+              <>
+                <ReactFamilyTree
+                  nodes={products?.length > 0 ? transformNodes() : nodes}
+                  rootId={products?.[0]?.id || ""}
+                  width={NODE_WIDTH}
+                  height={NODE_HEIGHT}
+                  className={css.tree}
+                  renderNode={(node) => (
+                    <FamilyNode
+                      key={node.id}
+                      node={node}
+                      isRoot={node.id === rootId}
+                      isExpanded={!!expanded[node.id]}
+                      onClick={() => setSelectedId(node.id)}
+                      onSubClick={() => toggleExpand(node.id)}
+                      style={getNodeStyle(node)}
+                      defaultNodes={products}
+                    />
+                  )}
                 />
-              )}
-            />
+              </>
+            )}
           </PinchZoomPan>
 
           {/* Reset khi rootId không phải firstNodeId */}
