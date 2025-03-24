@@ -18,12 +18,14 @@ const Pedigree: React.FC = () => {
   const isPhaDoRoute = location.pathname === "/pha-do"; // Check if we're at "/pha-do" route
 
   const [searchValue, setSearchValue] = useState<string>("");
+  console.log("searchValuepppppp", searchValue);
+  
   const {
     data: productsData,
     isLoading,
     isError,
   } = useProducts({
-    search: isPhaDoRoute ? undefined : searchValue, // Don't apply search filter on "/pha-do" route
+    search: searchValue,
   });
   const products = useMemo(() => productsData?.products || [], [productsData]);
   const defaultSource = "Đại gia Đình"; // Định nghĩa mặc định
@@ -36,10 +38,6 @@ const Pedigree: React.FC = () => {
 
   // Set up mutation for updating products
   const updateProductMutation = useUpdateProduct();
-
-  console.log("products", products);
-  console.log("productsData", productsData);
-
   const firstNodeId = useMemo(
     () => (nodes.length > 0 ? nodes[0].id : ""),
     [nodes]
@@ -135,8 +133,6 @@ const Pedigree: React.FC = () => {
     [products, updateProductMutation]
   );
 
-  console.log("expanded", expanded);
-
   const transformNodes = useCallback(() => {
     return products?.map((node) => {
       // Sử dụng node.expanded có sẵn trong data, nếu không tồn tại thì mặc định là false.
@@ -179,7 +175,6 @@ const Pedigree: React.FC = () => {
       };
     });
   }, [products, expanded]);
-  console.log("transformNodes()", transformNodes());
 
   // Handle loading and error states
 

@@ -12,7 +12,14 @@ const { Search } = Input;
 
 const Navbar: React.FC<NavbarProps> = ({ setSearchValue, hideSearch = false }) => {
   const [active, setActive] = useState("TRANG CHỦ");
-  const onSearch: SearchProps["onSearch"] = (value) => setSearchValue(value);
+  const [localSearchValue, setLocalSearchValue] = useState("");
+  const onSearch: SearchProps["onSearch"] = (value) => {
+    // Use either the passed value or current localSearchValue
+    setSearchValue(value || localSearchValue);
+  };
+
+  console.log("localSearchValue", localSearchValue);
+  
 
   const menuItems = [
     { name: "GIỚI THIỆU", path: "/" },
@@ -46,11 +53,15 @@ const Navbar: React.FC<NavbarProps> = ({ setSearchValue, hideSearch = false }) =
             }}
             className="custom-search"
             placeholder="Tìm kiếm"
+            onChange={(e) => {
+              setLocalSearchValue(e.target.value);
+            }}
             onSearch={onSearch}
             enterButton={
               <button 
                 type="button" 
                 className="h-[32px] px-5"
+                onClick={() => setSearchValue(localSearchValue)}
                 style={{ 
                   backgroundColor: "#D2691E", 
                   borderColor: "#D2691E", 
