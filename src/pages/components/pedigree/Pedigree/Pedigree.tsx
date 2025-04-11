@@ -12,6 +12,7 @@ import { SOURCES1 } from "../const1";
 import { NodeDetails } from "../NodeDetails/NodeDetails";
 import { useProducts, useUpdateProduct } from "../../../../services/api";
 import Navbar from "../../../../components/Navbar";
+import ButtonAddMember from "./component/ButtonAddMember";
 
 const Pedigree: React.FC = () => {
   const location = useLocation(); // Get current location
@@ -19,7 +20,7 @@ const Pedigree: React.FC = () => {
 
   const [searchValue, setSearchValue] = useState<string>("");
   console.log("searchValuepppppp", searchValue);
-  
+
   const {
     data: productsData,
     isLoading,
@@ -198,6 +199,7 @@ const Pedigree: React.FC = () => {
               {isLoading && (
                 <div className="text-center p-4">Loading family data...</div>
               )}
+              <ButtonAddMember />
               <PinchZoomPan
                 min={0.1}
                 max={2.5}

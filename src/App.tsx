@@ -5,13 +5,16 @@ import Navbar from "./components/Navbar";
 import Introduce from "./pages/Introduce";
 import { useProducts } from "./services/api";
 import Pedigree from "./pages/components/pedigree/Pedigree/Pedigree";
+import MyEditor from "./pages/NewPage";
+import NewsListPage from "./admin/NewsListPage";
+import NewsAddPage from "./admin/NewsAddPage";
+import NewsList from "./pages/NewsList";
 function App() {
   const { data: productsData, isLoading, isError } = useProducts();
   console.log("products", productsData);
   
   return (
     <>
-
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/gioi-thieu" element={<h1>Giới Thiệu</h1>} />
@@ -22,8 +25,9 @@ function App() {
             path="/pha-do/so-do-gia-toc"
             element={<h1>Sơ Đồ Gia Tộc</h1>}
           />
-          <Route path="/kien-thuc" element={<h1>Kiến Thức</h1>} />
-          <Route path="/tin-tuc" element={<h1>Tin Tức</h1>} />
+          <Route path="/tin-tuc" element={<NewsList/>} />
+          <Route path="/quan-tri-tin-tuc" element={<NewsListPage/>} />
+          <Route path="/news/add" element={<NewsAddPage />} />
           <Route
             path="/nghia-trang"
             element={<h1>Nghĩa Trang Trực Tuyến</h1>}

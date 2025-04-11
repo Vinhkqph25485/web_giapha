@@ -1,126 +1,137 @@
-import React from 'react';
-import { Form, Input, Radio, Button, Card, Row, Col } from 'antd';
+// File: src/components/MyEditor.jsx
 
-const PaymentConfirmation = () => {
-  const [form] = Form.useForm();
+import { Editor } from "@tinymce/tinymce-react";
+import { useRef, useState } from "react";
 
-  const onFinish = (values) => {
-    console.log('Form Values: ', values);
-    // Thực hiện gọi API hoặc các thao tác xử lý thanh toán ở đây
+const MyEditor = ({
+  initialValue = "<p>Viết nội dung ở đây...</p>",
+  onContentChange = null,
+  height = 500,
+}) => {
+  const editorRef = useRef(null);
+  const [content, setContent] = useState(initialValue);
+  const [displayContent, setDisplayContent] = useState("");
+
+  console.log("content", content);
+  console.log("displayContent", displayContent);
+
+  const handleEditorChange = (content, editor) => {
+    setContent(content);
+    if (onContentChange) {
+      onContentChange(content);
+    }
+  };
+
+  const getContent = () => {
+    if (editorRef.current) {
+      const editorContent = editorRef.current.getContent();
+      setDisplayContent(editorContent);
+      return editorContent;
+    }
+    return "";
   };
 
   return (
-    <Card title="Xác nhận thanh toán" style={{ maxWidth: 900, margin: '0 auto' }}>
-      <Form
-        form={form}
-        layout="vertical"
-        onFinish={onFinish}
-        initialValues={{
-          customerName: 'Nguyen Quân',
-          email: 'nguyenquan.hoang@gmail.com',
-          phone: '0123456789',
-          vatType: 'personal', // Mặc định chọn 'Cá nhân'
+    <div>
+      <Editor
+        apiKey="1wtnubcqbaj7x0o55sxessku2gahfypx3jxzjn2tacvyg5i6" // Đăng ký API key miễn phí tại https://www.tiny.cloud/auth/signup/
+        onInit={(evt, editor) => (editorRef.current = editor)}
+        initialValue={initialValue}
+        onEditorChange={handleEditorChange}
+        init={{
+          height,
+          menubar: true,
+          plugins: [
+            "advlist",
+            "autolink",
+            "lists",
+            "link",
+            "image",
+            "charmap",
+            "preview",
+            "anchor",
+            "searchreplace",
+            "visualblocks",
+            "code",
+            "fullscreen",
+            "insertdatetime",
+            "media",
+            "table",
+            "code",
+            "help",
+            "wordcount",
+            "paste",
+            "pagebreak",
+            "emoticons",
+            "template",
+            "print",
+          ],
+          toolbar: [
+            "undo redo | formatselect | bold italic underline strikethrough | forecolor backcolor | \
+         alignleft aligncenter alignright alignjustify | \
+         bullist numlist outdent indent | link image media table | removeformat | pagebreak | help",
+            "fontselect fontsizeselect | emoticons hr | fullscreen code | print",
+          ],
+          // Thêm cấu hình để upload hình ảnh
+          image_advtab: true,
+          file_picker_types: "image",
+          automatic_uploads: true,
+          content_style:
+            "body { font-family: Arial, sans-serif; font-size: 14px }",
+          paste_data_images: true,
+          contextmenu: "link image table paste",
+          branding: false,
+          resize: "both",
+          table_style_by_css: true,
+          table_responsive_width: true,
+          table_default_styles: {
+            borderCollapse: "collapse",
+            width: "100%",
+          },
         }}
-      >
-        <Row gutter={[24, 24]}>
-          {/* Cột trái: Thông tin khách hàng */}
-          <Col xs={24} md={12}>
-            <Form.Item
-              label="Tên khách hàng"
-              name="customerName"
-              rules={[{ required: true, message: 'Vui lòng nhập tên khách hàng!' }]}
-            >
-              <Input placeholder="Nhập tên khách hàng" />
-            </Form.Item>
+      />
+      <div style={{ marginTop: "1rem", display: "flex", gap: "10px" }}>
+        <button onClick={getContent} className="editor-button primary">
+          Lấy nội dung
+        </button>
+        <button
+          onClick={() => navigator.clipboard.writeText(content)}
+          className="editor-button"
+        >
+          Sao chép nội dung
+        </button>
+        <button
+          onClick={() => editorRef.current?.execCommand("mceFullScreen")}
+          className="editor-button"
+        >
+          Toàn màn hình
+        </button>
+        <button
+          onClick={() => setContent(initialValue)}
+          className="editor-button danger"
+        >
+          Đặt lại
+        </button>
+      </div>
 
-            <Form.Item
-              label="Email"
-              name="email"
-              rules={[
-                { required: true, message: 'Vui lòng nhập email!' },
-                { type: 'email', message: 'Email không hợp lệ!' },
-              ]}
-            >
-              <Input placeholder="nhập email" />
-            </Form.Item>
-
-            <Form.Item
-              label="Số điện thoại"
-              name="phone"
-              rules={[{ required: true, message: 'Vui lòng nhập số điện thoại!' }]}
-            >
-              <Input placeholder="nhập số điện thoại" />
-            </Form.Item>
-
-            <Form.Item
-              label="Loại hoá đơn VAT"
-              name="vatType"
-              rules={[{ required: true, message: 'Vui lòng chọn loại hoá đơn!' }]}
-            >
-              <Radio.Group>
-                <Radio value="company">Doanh nghiệp</Radio>
-                <Radio value="personal">Cá nhân</Radio>
-              </Radio.Group>
-            </Form.Item>
-
-            {/* Hiển thị các trường dành cho doanh nghiệp nếu vatType = 'company' */}
-            <Form.Item noStyle shouldUpdate>
-              {({ getFieldValue }) =>
-                getFieldValue('vatType') === 'company' && (
-                  <>
-                    <Form.Item
-                      label="Tên công ty"
-                      name="companyName"
-                      rules={[{ required: true, message: 'Vui lòng nhập tên công ty!' }]}
-                    >
-                      <Input placeholder="Ví dụ: Công ty ABC" />
-                    </Form.Item>
-
-                    <Form.Item
-                      label="Mã số thuế"
-                      name="taxCode"
-                      rules={[{ required: true, message: 'Vui lòng nhập mã số thuế!' }]}
-                    >
-                      <Input placeholder="Nhập mã số thuế" />
-                    </Form.Item>
-
-                    <Form.Item
-                      label="Email nhận hoá đơn"
-                      name="invoiceEmail"
-                      rules={[
-                        { required: true, message: 'Vui lòng nhập email nhận hoá đơn!' },
-                        { type: 'email', message: 'Email không hợp lệ!' },
-                      ]}
-                    >
-                      <Input placeholder="Ví dụ: abc@gmail.com" />
-                    </Form.Item>
-                  </>
-                )
-              }
-            </Form.Item>
-          </Col>
-
-          {/* Cột phải: Thông tin đơn hàng */}
-          <Col xs={24} md={12}>
-            <Card>
-              <p><strong>Tên gói:</strong> Callbot 05</p>
-              <p><strong>Số lượng:</strong> 12 block</p>
-              <p><strong>Giá gói:</strong> 99.999 đ / block</p>
-              <p><strong>Tạm tính:</strong> 5.000.000 đ</p>
-              <p><strong>VAT 10%:</strong> 500.000 đ</p>
-              <p><strong>Tổng tiền:</strong> 5.500.000 đ</p>
-            </Card>
-          </Col>
-        </Row>
-
-        <div style={{ textAlign: 'right', marginTop: 24 }}>
-          <Button type="primary" htmlType="submit">
-            Thanh toán
-          </Button>
+      {displayContent && (
+        <div style={{ marginTop: "20px" }}>
+          <h3>Nội dung đã lấy:</h3>
+          <div
+            className="content-preview"
+            style={{
+              border: "1px solid #ccc",
+              padding: "10px",
+              maxHeight: "300px",
+              overflow: "auto",
+            }}
+          >
+            <div dangerouslySetInnerHTML={{ __html: displayContent }} />
+          </div>
         </div>
-      </Form>
-    </Card>
+      )}
+    </div>
   );
 };
 
-export default PaymentConfirmation;
+export default MyEditor;
