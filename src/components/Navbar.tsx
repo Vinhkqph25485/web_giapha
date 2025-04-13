@@ -24,7 +24,6 @@ const Navbar: React.FC<NavbarProps> = ({
 
   const menuItems = [
     { name: "TRANG CHỦ", path: "/" },
-    { name: "GIỚI THIỆU", path: "/gioi-thieu" },
     {
       name: "PHẢ ĐỒ",
       path: "/pha-do",
