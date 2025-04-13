@@ -9,6 +9,7 @@ import MyEditor from "./pages/NewPage";
 import NewsListPage from "./admin/NewsListPage";
 import NewsAddPage from "./admin/NewsAddPage";
 import NewsList from "./pages/NewsList";
+import LoginPage from "./pages/LoginPage";
 function App() {
   const { data: productsData, isLoading, isError } = useProducts();
   console.log("products", productsData);
@@ -29,8 +30,8 @@ function App() {
           <Route path="/quan-tri-tin-tuc" element={<NewsListPage/>} />
           <Route path="/news/add" element={<NewsAddPage />} />
           <Route
-            path="/nghia-trang"
-            element={<h1>Nghĩa Trang Trực Tuyến</h1>}
+            path="/dang-nhap"
+            element={<LoginPage/>}
           />
         </Routes>
 
