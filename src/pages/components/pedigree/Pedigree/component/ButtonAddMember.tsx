@@ -48,12 +48,8 @@ const ButtonAddMember = () => {
       name: data.name,
       gender: data.gender,
       parents: data.parents ? data.parents.map((id: string) => ({ id, type: "blood" })) : [],
-      siblings: data.siblings ? data.siblings.map((id: string) => ({ id, type: "blood" })) : [],
       spouses: data.spouse ? [{ id: data.spouse, type: "married" }] : [],
-      children: data.children ? data.children.map((id: string) => ({ id, type: "blood" })) : [],
       expanded: false,
-      generation_level: data.generation_level,
-      family_rank: data.family_rank,
       date_of_birth: data.date_of_birth,
       date_of_death: data.date_of_death,
       permanent_address: data.permanent_address,
@@ -98,6 +94,42 @@ const ButtonAddMember = () => {
         okButtonProps={{ 
           style: { backgroundColor: '#8B0000', borderColor: '#8B0000' } 
         }}
+        footer={[
+          <Button key="cancel" onClick={onClose}>
+            Hủy
+          </Button>,
+          <Button 
+            key="preview" 
+            style={{ backgroundColor: '#2b5797', borderColor: '#2b5797', color: 'white' }}
+            onClick={() => {
+              const formValues = form.getFieldsValue();
+              console.log("Xem nhanh:", formValues);
+              // Hiển thị thông tin xem trước nếu cần
+              Modal.info({
+                title: 'Xem nhanh thông tin thành viên',
+                content: (
+                  <div>
+                    <p><strong>Họ và tên:</strong> {formValues.name}</p>
+                    <p><strong>Giới tính:</strong> {formValues.gender === 'male' ? 'Nam' : formValues.gender === 'female' ? 'Nữ' : ''}</p>
+                    <p><strong>Địa chỉ:</strong> {formValues.permanent_address}</p>
+                    <p><strong>Tiểu sử:</strong> <div dangerouslySetInnerHTML={{ __html: formValues.biography || '' }} /></p>
+                  </div>
+                ),
+                width: 700,
+              });
+            }}
+          >
+            Xem nhanh
+          </Button>,
+          <Button 
+            key="submit" 
+            type="primary" 
+            onClick={() => form.submit()}
+            style={{ backgroundColor: '#8B0000', borderColor: '#8B0000' }}
+          >
+            Thêm
+          </Button>,
+        ]}
       >
         <Form form={form} onFinish={handleAdd} layout="vertical">
           <div className="flex flex-wrap -mx-2">
@@ -157,7 +189,7 @@ const ButtonAddMember = () => {
           </div>
 
           <div className="flex flex-wrap -mx-2">
-            <div className="px-2 w-1/4">
+            <div className="px-2 w-1/3">
               <Form.Item
                 name="gender"
                 label={<span className="font-medium text-gray-700">Giới tính</span>}
@@ -170,26 +202,7 @@ const ButtonAddMember = () => {
               </Form.Item>
             </div>
             
-            <div className="px-2 w-1/4">
-              <Form.Item
-                name="generation_level"
-                label={<span className="font-medium text-gray-700">Thế hệ thứ</span>}
-                rules={[{ required: true, message: "Vui lòng nhập thế hệ!" }]}
-              >
-                <Input type="number" min={1} className="border-gray-300 rounded-md" />
-              </Form.Item>
-            </div>
-            
-            <div className="px-2 w-1/4">
-              <Form.Item
-                name="family_rank"
-                label={<span className="font-medium text-gray-700">Vai vế</span>}
-              >
-                <Input className="border-gray-300 rounded-md" />
-              </Form.Item>
-            </div>
-            
-            <div className="px-2 w-1/4">
+            <div className="px-2 w-1/3">
               <Form.Item
                 name="permanent_address"
                 label={<span className="font-medium text-gray-700">Địa chỉ</span>}
@@ -225,36 +238,6 @@ const ButtonAddMember = () => {
                   <Select.Option value="s2">Nguyễn Thị F</Select.Option>
                   <Select.Option value="s3">Trần Văn G</Select.Option>
                   <Select.Option value="s4">Lê Thị H</Select.Option>
-                  {/* Có thể thêm danh sách từ API */}
-                </Select>
-              </Form.Item>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap -mx-2">
-            <div className="px-2 w-1/2">
-              <Form.Item
-                name="children"
-                label={<span className="font-medium text-gray-700">Con</span>}
-              >
-                <Select mode="multiple" placeholder="Chọn con">
-                  <Select.Option value="c1">Nguyễn Văn I</Select.Option>
-                  <Select.Option value="c2">Nguyễn Thị J</Select.Option>
-                  <Select.Option value="c3">Nguyễn Văn K</Select.Option>
-                  {/* Có thể thêm danh sách từ API */}
-                </Select>
-              </Form.Item>
-            </div>
-            
-            <div className="px-2 w-1/2">
-              <Form.Item
-                name="siblings"
-                label={<span className="font-medium text-gray-700">Anh chị em</span>}
-              >
-                <Select mode="multiple" placeholder="Chọn anh chị em">
-                  <Select.Option value="sb1">Nguyễn Văn L</Select.Option>
-                  <Select.Option value="sb2">Nguyễn Thị M</Select.Option>
-                  <Select.Option value="sb3">Nguyễn Văn N</Select.Option>
                   {/* Có thể thêm danh sách từ API */}
                 </Select>
               </Form.Item>

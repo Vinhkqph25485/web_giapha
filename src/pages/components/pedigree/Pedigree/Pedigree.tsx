@@ -206,10 +206,10 @@ const Pedigree: React.FC = () => {
                 captureWheel
                 className={css.wrapper}
               >
-                {!isLoading && (
+                {!isLoading && products?.length > 0 && (
                   <>
                     <ReactFamilyTree
-                      nodes={products?.length > 0 ? transformNodes() : nodes}
+                      nodes={products?.length > 0 ? transformNodes() : []}
                       rootId={products?.[0]?.id || ""}
                       width={NODE_WIDTH}
                       height={NODE_HEIGHT}

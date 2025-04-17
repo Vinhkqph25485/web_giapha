@@ -40,7 +40,7 @@ const Navbar: React.FC<NavbarProps> = ({
 
   return (
     <nav className="bg-[#8B0000] shadow-md">
-      <div className="container mx-auto">
+      <div className="">
         <div className="px-10 mx-auto flex justify-between items-center">
           <ul className="flex">
             {menuItems.map((item) => (
@@ -57,37 +57,35 @@ const Navbar: React.FC<NavbarProps> = ({
             ))}
           </ul>
           <div className="flex items-center">
-            {hideSearch && (
-              <Search
-                style={{
-                  maxWidth: "200px",
-                }}
-                className="custom-search mr-4"
-                placeholder="Tìm kiếm"
-                onChange={(e) => {
-                  setLocalSearchValue(e.target.value);
-                }}
-                onSearch={onSearch}
-                enterButton={
-                  <button
-                    type="button"
-                    className="h-[32px] px-5"
-                    onClick={() => setSearchValue(localSearchValue)}
-                    style={{
-                      backgroundColor: "#D2691E",
-                      borderColor: "#D2691E",
-                      color: "white",
-                      borderTopRightRadius: "4px",
-                      borderBottomRightRadius: "4px",
-                    }}
-                  >
-                    Tìm
-                  </button>
-                }
-              />
-            )}
-            <Link 
-              to="/dang-nhap" 
+            <Search
+              style={{
+                maxWidth: "200px",
+              }}
+              className="custom-search mr-4"
+              placeholder="Tìm kiếm"
+              onChange={(e) => {
+                setLocalSearchValue(e.target.value);
+              }}
+              onSearch={onSearch}
+              enterButton={
+                <button
+                  type="button"
+                  className="h-[32px] px-5"
+                  onClick={() => setSearchValue(localSearchValue)}
+                  style={{
+                    backgroundColor: "#D2691E",
+                    borderColor: "#D2691E",
+                    color: "white",
+                    borderTopRightRadius: "4px",
+                    borderBottomRightRadius: "4px",
+                  }}
+                >
+                  Tìm
+                </button>
+              }
+            />
+            <Link
+              to="/dang-nhap"
               className="flex items-center px-4 py-1 text-white bg-[#D2691E] hover:bg-[#FF8C00] rounded-md transition-all duration-300"
             >
               <FaSignInAlt className="mr-2" />
