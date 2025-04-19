@@ -1,44 +1,76 @@
 import { useRef, useState } from "react";
-import { Modal, Form, Input, Upload, Button } from "antd";
+import { Modal, Form, Input, Upload, Button, message } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import { Editor } from "@tinymce/tinymce-react";
+import { useAddNewsArticle } from "../../services/api";
 
 const AddNewsModal = () => {
   const [form] = Form.useForm();
   const editorRef = useRef(null);
   const [showAddModal, setShowAddModal] = useState<boolean>(false);
+  const [fileList, setFileList] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  // Use the mutation hook from react-query
+  const addNewsArticle = useAddNewsArticle();
 
   const onUploadChange = (info: any) => {
-    if (info.file.status === "done") {
-      const reader = new FileReader();
-      reader.onload = () => form.setFieldsValue({ image: reader.result });
-      reader.readAsDataURL(info.file.originFileObj);
+    setFileList(info.fileList);
+    
+    // Update the form field value for preview
+    if (info.fileList.length > 0) {
+      const file = info.fileList[info.fileList.length - 1];
+      if (file.status === "done") {
+        const reader = new FileReader();
+        reader.onload = () => form.setFieldsValue({ image: reader.result });
+        reader.readAsDataURL(file.originFileObj);
+      }
+    } else {
+      form.setFieldsValue({ image: null });
     }
-  };
-
-  const onAdd = (newPost: any) => {
-    console.log("New post added:", newPost);
-    // Add logic to handle the new post (e.g., API call)
   };
 
   const onClose = () => {
     setShowAddModal(false);
     form.resetFields();
+    setFileList([]);
   };
 
-  const handleAdd = (data: any) => {
-    const newPost = {
-      id: Date.now(),
-      title: data.title,
-      content: data.content,
-      imageUrl: data.image,
-      createdAt: new Date().toISOString().split("T")[0],
-      author: "Admin",
-      status: "Bản nháp",
-    };
-    onAdd(newPost);
-    form.resetFields();
-    onClose();
+  const handleAdd = async (formData: any) => {
+    try {
+      setLoading(true);
+      
+      // Create FormData for API request
+      const apiFormData = new FormData();
+      apiFormData.append('title', formData.title);
+      apiFormData.append('content', formData.content);
+      
+      // Add image if exists
+      if (fileList.length > 0 && fileList[0].originFileObj) {
+        apiFormData.append('image', fileList[0].originFileObj);
+      }
+      
+      // Add summary if available in your form
+      if (formData.summary) {
+        apiFormData.append('summary', formData.summary);
+      }
+
+      // Use the mutation to create the article
+      await addNewsArticle.mutateAsync(apiFormData);
+      
+      // Show success message
+      message.success('Đã thêm bài viết mới thành công!');
+      
+      // Reset and close
+      form.resetFields();
+      setFileList([]);
+      onClose();
+    } catch (error) {
+      console.error('Error adding news article:', error);
+      message.error('Có lỗi xảy ra khi thêm bài viết. Vui lòng thử lại!');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -62,6 +94,7 @@ const AddNewsModal = () => {
         okText="Thêm"
         cancelText="Hủy"
         width={1000}
+        confirmLoading={loading}
       >
         <Form form={form} onFinish={handleAdd} layout="vertical">
           <Form.Item
@@ -71,6 +104,18 @@ const AddNewsModal = () => {
           >
             <Input className="border-gray-300 rounded-md" />
           </Form.Item>
+
+          <Form.Item
+            name="summary"
+            label={<span className="font-medium text-gray-700">Tóm tắt</span>}
+          >
+            <Input.TextArea
+              className="border-gray-300 rounded-md"
+              rows={3}
+              placeholder="Nhập tóm tắt nội dung bài viết"
+            />
+          </Form.Item>
+
           <Form.Item
             name="image"
             label={<span className="font-medium text-gray-700">Ảnh</span>}
@@ -80,12 +125,14 @@ const AddNewsModal = () => {
             <Upload
               listType="picture"
               maxCount={1}
+              fileList={fileList}
               onChange={onUploadChange}
               beforeUpload={() => false}
             >
               <Button icon={<UploadOutlined />}>Tải lên ảnh</Button>
             </Upload>
           </Form.Item>
+
           <Form.Item
             name="content"
             label={<span className="font-medium text-gray-700">Nội dung</span>}

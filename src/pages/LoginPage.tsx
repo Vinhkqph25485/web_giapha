@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaUser, FaLock, FaHome } from 'react-icons/fa';
 import { motion } from 'framer-motion';
+import { login } from '../services/api';
 
 const LoginPage: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -18,23 +19,23 @@ const LoginPage: React.FC = () => {
     setError('');
     
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await login(username, password);
       
-      if (username === 'admin' && password === 'password') {
-        setLoading(true);
+      if (response && response.access) {
+        // If remember me is checked, the cookie will already be set for 7 days
+        // Otherwise we can handle shorter expiry here if needed
+        
         setTimeout(() => {
           navigate('/quan-tri-tin-tuc');
         }, 500);
-      } else {
-        setError('Tên đăng nhập hoặc mật khẩu không đúng');
-        const form = document.querySelector('.login-form');
-        form?.classList.add('shake');
-        setTimeout(() => {
-          form?.classList.remove('shake');
-        }, 500);
       }
-    } catch (error) {
-      setError('Có lỗi xảy ra khi đăng nhập');
+    } catch (error: any) {
+      setError(error.response?.data?.detail || 'Tên đăng nhập hoặc mật khẩu không đúng');
+      const form = document.querySelector('.login-form');
+      form?.classList.add('shake');
+      setTimeout(() => {
+        form?.classList.remove('shake');
+      }, 500);
     } finally {
       setLoading(false);
     }

@@ -12,11 +12,13 @@
   "dependencies": {
     "@tanstack/react-query": "^5.69.0",
     "@tinymce/tinymce-react": "^6.0.0",
+    "@types/js-cookie": "^3.0.6",
     "and": "^0.0.3",
     "antd": "^5.24.2",
     "axios": "^1.8.3",
     "classnames": "^2.5.1",
     "framer-motion": "^12.6.5",
+    "js-cookie": "^3.0.5",
     "lucide-react": "^0.475.0",
     "particles.js": "^2.0.0",
     "pinch-zoom-pan": "^4.0.2",
