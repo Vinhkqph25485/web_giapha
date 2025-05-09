@@ -43,7 +43,10 @@ const AddNewsModal = () => {
       // Create FormData for API request
       const apiFormData = new FormData();
       apiFormData.append('title', formData.title);
-      apiFormData.append('content', formData.content);
+      
+      // Get raw HTML content from TinyMCE editor to preserve formatting
+      const htmlContent = editorRef.current ? editorRef.current.getContent() : formData.content;
+      apiFormData.append('content', htmlContent);
       
       // Add image if exists
       if (fileList.length > 0 && fileList[0].originFileObj) {
@@ -136,7 +139,6 @@ const AddNewsModal = () => {
           <Form.Item
             name="content"
             label={<span className="font-medium text-gray-700">Nội dung</span>}
-            rules={[{ required: true, message: "Vui lòng nhập nội dung!" }]}
           >
             <Editor
               apiKey="1wtnubcqbaj7x0o55sxessku2gahfypx3jxzjn2tacvyg5i6"

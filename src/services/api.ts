@@ -5,6 +5,17 @@ import Cookies from 'js-cookie'; // Need to install this package
 const API_URL = 'http://anticounterfeit.vn:8011/api/persons/family_tree/';
 const AUTH_API_URL = 'http://anticounterfeit.vn:8011/api/account/';
 
+// Helper function to get auth token from cookies
+const getAuthToken = () => {
+  return Cookies.get('accessToken');
+};
+
+// Helper function to create headers with auth token
+const getAuthHeaders = () => {
+  const token = getAuthToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
+
 // Authentication functions
 export const login = async (username: string, password: string) => {
   try {
@@ -69,27 +80,32 @@ export const getCurrentUser = () => {
 
 // Base API functions
 const fetchProducts = async () => {
-  const response = await axios.get(API_URL);
+  const headers = getAuthHeaders();
+  const response = await axios.get(API_URL, { headers });
   return response.data;
 };
 
 const fetchProductById = async (id: number) => {
-  const response = await axios.get(`${API_URL}/${id}`);
+  const headers = getAuthHeaders();
+  const response = await axios.get(`${API_URL}/${id}`, { headers });
   return response.data;
 };
 
 const createProduct = async (product: any) => {
-  const response = await axios.post(API_URL, product);
+  const headers = getAuthHeaders();
+  const response = await axios.post(API_URL, product, { headers });
   return response.data;
 };
 
 const patchProduct = async ({ id, field, value }: { id: number, field: string, value: any }) => {
-  const response = await axios.patch(`${API_URL}/${id}`, { [field]: value });
+  const headers = getAuthHeaders();
+  const response = await axios.patch(`${API_URL}/${id}`, { [field]: value }, { headers });
   return response.data;
 };
 
 const removeProduct = async (id: number) => {
-  await axios.delete(`${API_URL}/${id}`);
+  const headers = getAuthHeaders();
+  await axios.delete(`${API_URL}/${id}`, { headers });
   return { message: 'Product deleted successfully' };
 };
 
@@ -102,7 +118,8 @@ export const useProducts = (searchParams?: Record<string, any>) => {
 };
 
 const fetchProductsWithParams = async (params?: Record<string, any>) => {
-  const response = await axios.get(API_URL, { params });
+  const headers = getAuthHeaders();
+  const response = await axios.get(API_URL, { params, headers });
   return response.data;
 };
 
@@ -165,46 +182,55 @@ const NEWS_API_URL = 'http://anticounterfeit.vn:8011/api/news/';
 
 // News API functions
 const fetchNewsArticles = async (params?: Record<string, any>) => {
-  const response = await axios.get(`${NEWS_API_URL}articles/`, { params });
+  const headers = getAuthHeaders();
+  const response = await axios.get(`${NEWS_API_URL}articles/`, { params, headers });
   return response.data;
 };
 
 // New function to fetch paginated news articles
 const fetchPaginatedNewsArticles = async (page: number = 1, pageSize: number = 10) => {
+  const headers = getAuthHeaders();
   const response = await axios.get(`${NEWS_API_URL}articles/`, { 
     params: { 
       page, 
       page_size: pageSize 
-    }
+    },
+    headers
   });
   return response.data;
 };
 
 const fetchNewsArticleById = async (id: number) => {
-  const response = await axios.get(`${NEWS_API_URL}articles/${id}/`);
+  const headers = getAuthHeaders();
+  const response = await axios.get(`${NEWS_API_URL}articles/${id}/`, { headers });
   return response.data;
 };
 
 const createNewsArticle = async (articleData: FormData) => {
-  const response = await axios.post(`${NEWS_API_URL}articles/`, articleData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  });
+  const token = getAuthToken();
+  const headers = {
+    'Content-Type': 'multipart/form-data',
+    ...(token && { Authorization: `Bearer ${token}` })
+  };
+  
+  const response = await axios.post(`${NEWS_API_URL}articles/`, articleData, { headers });
   return response.data;
 };
 
 const updateNewsArticle = async ({ id, data }: { id: number; data: FormData }) => {
-  const response = await axios.patch(`${NEWS_API_URL}articles/${id}/`, data, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  });
+  const token = getAuthToken();
+  const headers = {
+    'Content-Type': 'multipart/form-data',
+    ...(token && { Authorization: `Bearer ${token}` })
+  };
+  
+  const response = await axios.patch(`${NEWS_API_URL}articles/${id}/`, data, { headers });
   return response.data;
 };
 
 const deleteNewsArticle = async (id: number) => {
-  await axios.delete(`${NEWS_API_URL}articles/${id}/`);
+  const headers = getAuthHeaders();
+  await axios.delete(`${NEWS_API_URL}articles/${id}/`, { headers });
   return { message: 'News article deleted successfully' };
 };
 
