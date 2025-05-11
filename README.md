@@ -1,11 +1,77 @@
-# React + TypeScript + Vite
+# React + TypeScript + Vite - Web Gia Phả
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This project provides a web application for managing family genealogy (Gia Phả) using React, TypeScript, and Vite.
 
-Currently, two official plugins are available:
+## Getting Started
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+To get started with this project, follow these steps:
+
+### Prerequisites
+
+- Node.js (v14.0.0 or higher)
+- npm (v6.0.0 or higher)
+
+### Installation
+
+1. Clone the repository
+2. Install dependencies:
+
+```bash
+npm install
+```
+
+### Development
+
+To run the development server:
+
+```bash
+npm run dev
+```
+
+This will start the development server at `http://localhost:5173`.
+
+### Building for Production
+
+#### Standard Build
+
+To build the application for production:
+
+```bash
+npm run build
+```
+
+This will create a `dist` folder with the production build.
+
+#### Build with ZIP Archive
+
+To build the application and create a ZIP file for easy deployment:
+
+```bash
+npm run build:zip
+```
+
+This process will:
+1. Build the React application (ignoring TypeScript errors)
+2. Create a ZIP file named `web_giapha_build.zip` in the project root directory
+
+### Deployment
+
+After creating the ZIP file:
+1. Copy the `web_giapha_build.zip` file to your server
+2. Unzip the file on your server
+3. Serve the files using a web server like Apache, Nginx, or any static file server
+
+## Technology Stack
+
+This application is built using:
+
+- React 19
+- TypeScript
+- Vite
+- Ant Design
+- TinyMCE for rich text editing
+- React Query
+- React Router DOM v7
 
 ## Expanding the ESLint configuration
 

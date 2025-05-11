@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:zip": "tsc --noEmit && vite build && npm run create-zip",
+    "create-zip": "node scripts/create-zip.js",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -35,6 +37,7 @@
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",
     "@vitejs/plugin-react": "^4.3.4",
+    "archiver": "^7.0.1",
     "autoprefixer": "^10.4.20",
     "eslint": "^9.19.0",
     "eslint-plugin-react-hooks": "^5.0.0",
