@@ -49,11 +49,11 @@ const NewsListPage: React.FC = () => {
   const [itemToChangeStatus, setItemToChangeStatus] = useState<number | null>(null);
   const [showEditModal, setShowEditModal] = useState<boolean>(false);
   const [itemToEdit, setItemToEdit] = useState<NewsItem | null>(null);
-  const [showAddModal, setShowAddModal] = useState<boolean>(false);
   const [showPreviewModal, setShowPreviewModal] = useState<boolean>(false);
   const [previewItem, setPreviewItem] = useState<NewsItem | null>(null);
   const editorRef = useRef(null);
   const [form] = Form.useForm();
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
 
   // API hooks
   const deleteNewsMutation = useDeleteNewsArticle();
@@ -99,7 +99,6 @@ const NewsListPage: React.FC = () => {
       
       setNewsItems(transformedItems);
       
-      // Update pagination
       setPagination(prev => ({
         ...prev,
         total: newsData.count || 0
@@ -115,9 +114,16 @@ const NewsListPage: React.FC = () => {
   }, [error]);
 
   const onUploadChange = (info: any) => {
-    if (info.file.status === "done") {
+    // Store the actual file object when a file is selected
+    if (info.file && info.file.originFileObj) {
+      setUploadedFile(info.file.originFileObj);
+      
+      // Create a preview if needed
       const reader = new FileReader();
-      reader.onload = () => setValue("image", reader.result as string);
+      reader.onload = () => {
+        // For preview purposes only, not used in submission
+        console.log("File loaded:", reader.result);
+      };
       reader.readAsDataURL(info.file.originFileObj);
     }
   };
@@ -209,13 +215,11 @@ const NewsListPage: React.FC = () => {
       formData.append('title', data.title);
       formData.append('content', data.content);
       
-      if (data.image) {
-        // Handle image upload if it's a File object
-        if (data.image instanceof File) {
-          formData.append('image', data.image);
-        }
+      // Use the uploadedFile state rather than relying on data.image
+      if (uploadedFile) {
+        formData.append('image', uploadedFile);
+        console.log("Appending image to form data:", uploadedFile.name);
       }
-      
 
       updateNewsMutation.mutate(
         { id: itemToEdit.id, data: formData },
@@ -224,8 +228,10 @@ const NewsListPage: React.FC = () => {
             message.success("Cập nhật bài viết thành công!");
             setShowEditModal(false);
             setItemToEdit(null);
+            setUploadedFile(null); // Clear the uploaded file state
           },
-          onError: () => {
+          onError: (error) => {
+            console.error("Update error:", error);
             message.error("Có lỗi xảy ra khi cập nhật bài viết!");
           }
         }
@@ -236,6 +242,7 @@ const NewsListPage: React.FC = () => {
   const cancelEdit = () => {
     setShowEditModal(false);
     setItemToEdit(null);
+    setUploadedFile(null); // Clear uploaded file on cancel
   };
   
   // Table columns configuration
@@ -456,7 +463,6 @@ const NewsListPage: React.FC = () => {
             layout={"vertical"}
             initialValues={{
               title: itemToEdit.title,
-              image: null,
               content: itemToEdit.content,
             }}
           >
@@ -470,21 +476,57 @@ const NewsListPage: React.FC = () => {
                 className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               />
             </Form.Item>
+            
             <Form.Item
               name="image"
               label="Ảnh"
-              valuePropName="fileList"
-              getValueFromEvent={(e) => e && e.fileList}
+              extra={
+                <div className="text-sm text-gray-500 mb-2">
+                  {itemToEdit.imageUrl ? (
+                    <span>Tải lên ảnh mới để thay thế ảnh hiện tại</span>
+                  ) : (
+                    <span>Tải lên ảnh cho bài viết</span>
+                  )}
+                </div>
+              }
             >
-              <Upload
-                listType="picture"
-                maxCount={1}
-                onChange={onUploadChange}
-                beforeUpload={() => false} // Prevent automatic upload
-              >
-                <Button icon={<UploadOutlined />}>Tải lên ảnh</Button>
-              </Upload>
+              <div className="space-y-4">
+                {/* Show current image if exists */}
+                {itemToEdit.imageUrl && (
+                  <div className="mb-2">
+                    <p className="text-sm font-medium mb-1">Ảnh hiện tại:</p>
+                    <Image
+                      src={itemToEdit.imageUrl}
+                      alt="Current"
+                      width={200}
+                      className="rounded-md"
+                    />
+                  </div>
+                )}
+                
+                {/* Upload new image */}
+                <Upload
+                  accept="image/*"
+                  listType="picture"
+                  maxCount={1}
+                  showUploadList={true}
+                  beforeUpload={() => false} // Prevent automatic upload
+                  onChange={onUploadChange}
+                >
+                  <Button icon={<UploadOutlined />}>
+                    {itemToEdit.imageUrl ? 'Thay đổi ảnh' : 'Tải lên ảnh'}
+                  </Button>
+                </Upload>
+                
+                {/* Display file selected message */}
+                {uploadedFile && (
+                  <div className="text-sm text-green-600">
+                    File được chọn: {uploadedFile.name} ({Math.round(uploadedFile.size/1024)} KB)
+                  </div>
+                )}
+              </div>
             </Form.Item>
+            
             <Form.Item
               name="content"
               label="Nội dung"

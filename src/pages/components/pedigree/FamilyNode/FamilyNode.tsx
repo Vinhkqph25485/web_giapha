@@ -72,7 +72,7 @@ console.log("node?.children", node);
         <div className="flex flex-col justify-center items-center">
           <img
             className="p-2 w-12 h-12 rounded-full"
-            src={node?.image_url}
+            src={node?.image}
             alt={node?.id}
           />
           <div className="font-bold text-black text-xs text-center">
@@ -136,7 +136,7 @@ console.log("node?.children", node);
           <div className="flex justify-center mb-4">
             <img
               className="p-2 w-24 h-24 rounded-full"
-              src={node?.image_url}
+              src={node?.image}
               alt={node?.id}
             />
           </div>

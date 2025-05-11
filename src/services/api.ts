@@ -4,6 +4,7 @@ import Cookies from 'js-cookie'; // Need to install this package
 
 const API_URL = 'http://anticounterfeit.vn:8011/api/persons/family_tree/';
 const AUTH_API_URL = 'http://anticounterfeit.vn:8011/api/account/';
+const PERSON_API_URL = 'http://anticounterfeit.vn:8011/api/persons/';
 
 // Helper function to get auth token from cookies
 const getAuthToken = () => {
@@ -292,4 +293,104 @@ export const newsApiService = {
   addNewsArticle: createNewsArticle,
   updateNewsArticle: updateNewsArticle,
   deleteNewsArticle: deleteNewsArticle,
+};
+
+// Family Members API functions
+const fetchFamilyMembers = async (params?: Record<string, any>) => {
+  const headers = getAuthHeaders();
+  const response = await axios.get(PERSON_API_URL, { params, headers });
+  return response.data;
+};
+
+const fetchFamilyMemberById = async (id: number) => {
+  const headers = getAuthHeaders();
+  const response = await axios.get(`${PERSON_API_URL}${id}/`, { headers });
+  return response.data;
+};
+
+const addFamilyMember = async (memberData: FormData) => {
+  const headers = getAuthHeaders();
+  const response = await axios.post(PERSON_API_URL, memberData, { 
+    headers: {
+      ...headers,
+      'Content-Type': 'multipart/form-data'
+    }
+  });
+  return response.data;
+};
+
+const updateFamilyMember = async ({ id, data }: { id: number; data: FormData }) => {
+  const headers = getAuthHeaders();
+  const response = await axios.patch(`${PERSON_API_URL}${id}/`, data, { 
+    headers: {
+      ...headers,
+      'Content-Type': 'multipart/form-data'
+    }
+  });
+  return response.data;
+};
+
+const deleteFamilyMember = async (id: number) => {
+  const headers = getAuthHeaders();
+  await axios.delete(`${PERSON_API_URL}${id}/`, { headers });
+  return { message: 'Family member deleted successfully' };
+};
+
+// React Query hooks for family members
+export const useFamilyMembers = (searchParams?: Record<string, any>) => {
+  return useQuery({
+    queryKey: ['familyMembers', searchParams],
+    queryFn: () => fetchFamilyMembers({gender: male, ...searchParams}),
+  });
+};
+
+export const useFamilyMember = (id: number) => {
+  return useQuery({
+    queryKey: ['familyMember', id],
+    queryFn: () => fetchFamilyMemberById(id),
+    enabled: !!id,
+  });
+};
+
+export const useAddFamilyMember = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: addFamilyMember,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['familyMembers'] });
+    },
+  });
+};
+
+export const useUpdateFamilyMember = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: updateFamilyMember,
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['familyMember', variables.id] });
+      queryClient.invalidateQueries({ queryKey: ['familyMembers'] });
+    },
+  });
+};
+
+export const useDeleteFamilyMember = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: deleteFamilyMember,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['familyMembers'] });
+    },
+  });
+};
+
+// Export family member API services
+export const familyMemberApiService = {
+  getFamilyMembers: fetchFamilyMembers,
+  getFamilyMemberById: fetchFamilyMemberById,
+  addFamilyMember: addFamilyMember,
+  updateFamilyMember: updateFamilyMember,
+  deleteFamilyMember: deleteFamilyMember,
 };

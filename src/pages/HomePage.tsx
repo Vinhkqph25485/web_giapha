@@ -1,6 +1,8 @@
 import Footer from "../components/Footer";
 import { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
+import { useNewsArticles } from "../services/api";
+import { Spin, message } from "antd";
 
 const images = [
   "https://www.hophungvietnam.com/app/webroot/uploads/images/bf4080eb-87a8-45b1-b614-19b0da91a937.jpg",
@@ -10,55 +12,101 @@ const images = [
 ];
 
 const HomePage = () => {
-  const newsData = [
-    {
-      id: 1,
-      title: "Lễ Tổ Tiên Dòng Họ Nguyễn",
-      date: "20/02/2025",
-      description:
-        "Dòng họ Nguyễn tổ chức lễ tưởng niệm tổ tiên với sự tham gia đông đảo của con cháu.",
-      image:
-        "https://www.hophungvietnam.com/app/webroot/uploads/images/bf4080eb-87a8-45b1-b614-19b0da91a937.jpg",
-    },
-    {
-      id: 2,
-      title: "Cuộc Họp Mặt Cuối Năm",
-      date: "15/12/2024",
-      description:
-        "Buổi gặp mặt thân mật của dòng họ nhằm tổng kết một năm đầy thành công.",
-      image:
-        "https://www.hophungvietnam.com/app/webroot/uploads/images/bf4080eb-87a8-45b1-b614-19b0da91a937.jpg",
-    },
-    {
-      id: 3,
-      title: "Kỷ Niệm 100 Năm Dòng Họ",
-      date: "01/08/2024",
-      description:
-        "Một sự kiện trọng đại kỷ niệm 100 năm dòng họ, đánh dấu sự phát triển vững mạnh.",
-      image:
-        "https://www.hophungvietnam.com/app/webroot/uploads/images/bf4080eb-87a8-45b1-b614-19b0da91a937.jpg",
-    },
-  ];
-
-  const [currentIndex, setCurrentIndex] = useState(0);
-
+  // Fetch news from API
+  const { 
+    data: newsData, 
+    isLoading: newsLoading, 
+    error: newsError 
+  } = useNewsArticles({
+    page: 1,
+    page_size: 12,
+    is_published: true
+  });
+  
+  const [articles, setArticles] = useState([]);
+  const [currentNewsIndex, setCurrentNewsIndex] = useState(0);
+  const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
+  const [showSlideshow, setShowSlideshow] = useState(false);
+  
+  // Process news data when it loads
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
+    if (newsData && newsData.results) {
+      const transformedArticles = newsData.results.map(item => ({
+        id: item.id,
+        title: item.title,
+        date: new Date(item.created_at).toLocaleDateString("vi-VN"),
+        description: item.summary || item.content.replace(/<[^>]+>/g, '').substring(0, 120) + '...',
+        image: item.image || "https://via.placeholder.com/600x400?text=No+Image",
+        content: item.content || ""
+      }));
+      
+      setArticles(transformedArticles);
+      setShowSlideshow(transformedArticles.length > 3);
+    }
+  }, [newsData]);
+  
+  // Show error if news fetch fails
+  useEffect(() => {
+    if (newsError) {
+      message.error("Không thể tải tin tức. Vui lòng thử lại sau!");
+    }
+  }, [newsError]);
+  
+  // Rotate banner image automatically
+  useEffect(() => {
+    const bannerInterval = setInterval(() => {
+      setCurrentBannerIndex((prevIndex) => (prevIndex + 1) % images.length);
     }, 3000);
 
-    return () => clearInterval(interval);
+    return () => clearInterval(bannerInterval);
   }, []);
+  
+  // Auto rotate news if showing slideshow
+  useEffect(() => {
+    if (showSlideshow && articles.length > 0) {
+      const newsInterval = setInterval(() => {
+        setCurrentNewsIndex((prevIndex) => (prevIndex + 3) % articles.length);
+      }, 5000);
+      
+      return () => clearInterval(newsInterval);
+    }
+  }, [showSlideshow, articles]);
 
   const prevSlide = () => {
-    setCurrentIndex(
+    setCurrentBannerIndex(
       (prevIndex) => (prevIndex - 1 + images.length) % images.length
     );
   };
 
   const nextSlide = () => {
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
+    setCurrentBannerIndex((prevIndex) => (prevIndex + 1) % images.length);
   };
+  
+  const prevNewsSlide = () => {
+    setCurrentNewsIndex(
+      (prevIndex) => (prevIndex - 3 + articles.length) % articles.length
+    );
+  };
+
+  const nextNewsSlide = () => {
+    setCurrentNewsIndex((prevIndex) => (prevIndex + 3) % articles.length);
+  };
+  
+  // Get current articles to display (either all, or 3 for slideshow)
+  const getCurrentArticles = () => {
+    if (!showSlideshow || articles.length <= 3) {
+      return articles.slice(0, 3);
+    }
+    
+    // Return 3 articles starting from currentNewsIndex, with wraparound
+    const result = [];
+    for (let i = 0; i < 3; i++) {
+      const index = (currentNewsIndex + i) % articles.length;
+      result.push(articles[index]);
+    }
+    return result;
+  };
+
   return (
     <>
       <Navbar />
@@ -66,7 +114,7 @@ const HomePage = () => {
         {/* Banner */}
         <div
           className="relative h-[500px] md:h-[600px] bg-cover bg-center transition-all duration-1000"
-          style={{ backgroundImage: `url(${images[currentIndex]})` }}
+          style={{ backgroundImage: `url(${images[currentBannerIndex]})` }}
         >
           <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
             <h1 className="text-white text-3xl md:text-5xl font-bold text-center">
@@ -126,28 +174,84 @@ const HomePage = () => {
 
           {/* Danh sách tin tức */}
           <section className="mt-8">
-            <h2 className="text-2xl md:text-3xl font-semibold mb-4 text-gray-800">
-              Tin Tức Dòng Họ
-            </h2>
-            <div className="grid md:grid-cols-3 gap-6">
-              {newsData.map((news) => (
-                <div
-                  key={news.id}
-                  className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition"
-                >
-                  <img
-                    src={news.image}
-                    alt={news.title}
-                    className="w-full h-40 md:h-48 object-cover rounded-md"
-                  />
-                  <h3 className="text-lg md:text-xl font-semibold text-blue-600 mt-3">
-                    {news.title}
-                  </h3>
-                  <p className="text-sm text-gray-500">{news.date}</p>
-                  <p className="text-gray-700 mt-2">{news.description}</p>
-                </div>
-              ))}
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl md:text-3xl font-semibold text-gray-800">
+                Tin Tức Dòng Họ
+              </h2>
+              {showSlideshow && (
+                <a href="/tin-tuc" className="text-blue-600 hover:underline">
+                  Xem tất cả →
+                </a>
+              )}
             </div>
+            
+            {newsLoading ? (
+              <div className="flex justify-center items-center h-64">
+                <Spin size="large" tip="Đang tải tin tức..." />
+              </div>
+            ) : (
+              <div className="relative">
+                <div className="grid md:grid-cols-3 gap-6">
+                  {getCurrentArticles().map((news) => (
+                    <div
+                      key={news.id}
+                      className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition"
+                      onClick={() => window.location.href = `/tin-tuc/${news.id}`}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      <img
+                        src={news.image}
+                        alt={news.title}
+                        className="w-full h-40 md:h-48 object-cover rounded-md"
+                        onError={(e) => {
+                          e.target.src = "https://via.placeholder.com/600x400?text=No+Image";
+                        }}
+                      />
+                      <h3 className="text-lg md:text-xl font-semibold text-blue-600 mt-3">
+                        {news.title}
+                      </h3>
+                      <p className="text-sm text-gray-500">{news.date}</p>
+                      <p className="text-gray-700 mt-2">{news.description}</p>
+                    </div>
+                  ))}
+                </div>
+                
+                {/* News slideshow controls */}
+                {showSlideshow && articles.length > 3 && (
+                  <>
+                    <button
+                      onClick={prevNewsSlide}
+                      className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-4 bg-white bg-opacity-80 px-3 py-2 rounded-full text-gray-700 shadow-md hover:bg-opacity-100 z-10"
+                    >
+                      ❮
+                    </button>
+                    <button
+                      onClick={nextNewsSlide}
+                      className="absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-4 bg-white bg-opacity-80 px-3 py-2 rounded-full text-gray-700 shadow-md hover:bg-opacity-100 z-10"
+                    >
+                      ❯
+                    </button>
+                    
+                    {/* Slideshow indicators */}
+                    <div className="flex justify-center mt-4">
+                      {Array.from({ length: Math.ceil(articles.length / 3) }).map((_, index) => (
+                        <button 
+                          key={index}
+                          className={`w-2 h-2 mx-1 rounded-full ${index === Math.floor(currentNewsIndex / 3) ? 'bg-blue-600' : 'bg-gray-300'}`}
+                          onClick={() => setCurrentNewsIndex(index * 3)}
+                        />
+                      ))}
+                    </div>
+                  </>
+                )}
+                
+                {articles.length === 0 && !newsLoading && (
+                  <div className="bg-white p-8 rounded-lg shadow-md text-center">
+                    <p className="text-lg text-gray-600">Không tìm thấy bài viết nào.</p>
+                  </div>
+                )}
+              </div>
+            )}
           </section>
         </div>
 

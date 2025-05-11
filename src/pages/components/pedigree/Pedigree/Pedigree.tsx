@@ -24,11 +24,13 @@ const Pedigree: React.FC = () => {
   const {
     data: productsData,
     isLoading,
-    isError,
   } = useProducts({
     search: searchValue,
   });
   const products = useMemo(() => productsData?.products || [], [productsData]);
+
+  console.log("products", products);
+  
   const defaultSource = "Đại gia Đình"; // Định nghĩa mặc định
   const [source, setSource] = useState<string>(defaultSource);
 
@@ -144,7 +146,7 @@ const Pedigree: React.FC = () => {
         id: node.id,
         name: node.name,
         gender: node.gender,
-        image_url: node.image_url,
+        image: node.image,
         description: node.description,
         date_of_birth: node.date_of_birth,
         date_of_death: node.date_of_death,
@@ -179,12 +181,6 @@ const Pedigree: React.FC = () => {
 
   // Handle loading and error states
 
-  if (isError)
-    return (
-      <div className="text-center p-4 text-red-500">
-        Error loading family data
-      </div>
-    );
 
   return (
     <>
