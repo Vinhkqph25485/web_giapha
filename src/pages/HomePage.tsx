@@ -4,7 +4,9 @@ import Navbar from "../components/Navbar";
 import { useNewsArticles, useHomepageContent } from "../services/api";
 import { Spin, message } from "antd";
 
-const images = [
+
+// Default images to use if API doesn't return any
+const defaultImages = [
   "https://www.hophungvietnam.com/app/webroot/uploads/images/bf4080eb-87a8-45b1-b614-19b0da91a937.jpg",
   "https://cdnmedia.baotintuc.vn/Upload/YZmStSDTjb0M07hFJ2gA/files/2023/05/09/dong-co-110523-3.jpg",
   "https://ktmt.vnmediacdn.com/images/2022/09/29/51-1664442114-3.jpg",
@@ -22,14 +24,15 @@ const HomePage = () => {
     page_size: 12,
     is_published: true
   });
-    // Fetch homepage content from API
+  
+  // Fetch homepage content from API
   const {
     data: homepageData,
     isLoading: homepageLoading,
     error: homepageError
   } = useHomepageContent();
   
-  interface NewsArticle {
+    interface NewsArticle {
     id: number | string;
     title: string;
     date: string;
@@ -42,6 +45,14 @@ const HomePage = () => {
   const [currentNewsIndex, setCurrentNewsIndex] = useState(0);
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
   const [showSlideshow, setShowSlideshow] = useState(false);
+  
+  // Get the images array to use (either from API or fallback to defaults)
+  const getImagesArray = () => {
+    if (homepageData?.results?.[0]?.images && homepageData.results[0].images.length > 0) {
+      return homepageData.results[0].images;
+    }
+    return defaultImages;
+  };
   
   // Process news data when it loads
   useEffect(() => {
@@ -80,16 +91,18 @@ const HomePage = () => {
     if (homepageError) {
       message.error("Không thể tải nội dung trang chủ. Vui lòng thử lại sau!");
     }
-  }, [newsError, homepageError]);
-  
-  // Rotate banner image automatically
+  }, [newsError, homepageError]);  // Rotate banner image automatically
   useEffect(() => {
+    const images = getImagesArray();
     const bannerInterval = setInterval(() => {
-      setCurrentBannerIndex((prevIndex) => (prevIndex + 1) % images.length);
+      setCurrentBannerIndex((prevIndex) => 
+        (prevIndex + 1) % images.length
+      );
     }, 3000);
-
+    
     return () => clearInterval(bannerInterval);
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [homepageData]);
   
   // Auto rotate news if showing slideshow
   useEffect(() => {
@@ -100,16 +113,18 @@ const HomePage = () => {
       
       return () => clearInterval(newsInterval);
     }
-  }, [showSlideshow, articles]);
-
-  const prevSlide = () => {
+  }, [showSlideshow, articles]);  const prevSlide = () => {
+    const images = getImagesArray();
     setCurrentBannerIndex(
       (prevIndex) => (prevIndex - 1 + images.length) % images.length
     );
   };
 
   const nextSlide = () => {
-    setCurrentBannerIndex((prevIndex) => (prevIndex + 1) % images.length);
+    const images = getImagesArray();
+    setCurrentBannerIndex(
+      (prevIndex) => (prevIndex + 1) % images.length
+    );
   };
   
   const prevNewsSlide = () => {
@@ -139,17 +154,13 @@ const HomePage = () => {
   return (
     <>
       <Navbar setSearchValue={() => {}} />
-      <div className="bg-gray-100 min-h-screen">
-        {/* Banner */}
+      <div className="bg-gray-100 min-h-screen">        {/* Banner */}
         <div
-          className="relative h-[500px] md:h-[600px] bg-cover bg-center transition-all duration-1000"
-          style={{ backgroundImage: `url(${images[currentBannerIndex]})` }}
+          className="relative h-[500px] md:h-[600px] bg-cover bg-center transition-all duration-1000"          style={{ 
+            backgroundImage: `url(${getImagesArray()[currentBannerIndex % getImagesArray().length]})`
+          }}
         >
-          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-            <h1 className="text-white text-3xl md:text-5xl font-bold text-center">
-              Giới Thiệu Dòng Họ
-            </h1>
-          </div>
+          
           <button
             onClick={prevSlide}
             className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-80 px-3 py-2 rounded-full text-gray-700 text-2xl shadow-md hover:bg-opacity-100"
@@ -168,7 +179,7 @@ const HomePage = () => {
         <div className="container mx-auto px-4 py-8">          {/* Giới thiệu */}
           <section className="bg-white p-6 md:p-8 rounded-lg shadow-md">
             <h2 className="text-2xl md:text-3xl font-semibold mb-4 text-gray-800">
-              Lịch Sử Dòng Họ
+              { homepageData?.results?.[0]?.title || "Giới thiệu" }
             </h2>
             {homepageLoading ? (
               <div className="flex justify-center items-center h-48">

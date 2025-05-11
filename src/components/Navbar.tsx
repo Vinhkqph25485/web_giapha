@@ -129,16 +129,18 @@ const Navbar: React.FC<NavbarProps> = ({
             } 
             md:relative md:flex-row md:w-auto
           `}
-          >
-            {displayMenuItems.map((item) => (
+          >            {displayMenuItems.map((item) => (
               <li
                 key={item.name}
                 className={`relative px-5 py-3 text-white cursor-pointer transition-all duration-300 w-full md:w-auto ${
                   active === item.name ? "bg-[#D2691E]" : "hover:bg-[#FF8C00]"
                 }`}
-                onClick={() => handleMenuItemClick(item.name)}
+                onClick={() => {
+                  handleMenuItemClick(item.name);
+                  navigate(item.path);
+                }}
               >
-                <Link to={item.path}>{item.name}</Link>
+                <span>{item.name}</span>
               </li>
             ))}
           </ul>
