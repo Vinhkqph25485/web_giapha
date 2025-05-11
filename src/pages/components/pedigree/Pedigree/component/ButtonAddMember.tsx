@@ -52,9 +52,6 @@ const ButtonAddMember = () => {
   const [familyMembers, setFamilyMembers] = useState<FamilyMember[]>([]);
   const [loadingMembers, setLoadingMembers] = useState<boolean>(false);
 
-  console.log("familyMembers", familyMembers);
-  console.log("form.getFieldValue.length", form.getFieldValue("parents")?.length);
-
   const addFamilyMemberMutation = useAddFamilyMember();
 
   useEffect(() => {
@@ -77,21 +74,19 @@ const ButtonAddMember = () => {
 
     fetchData();
   }, []);
-
   // Handle parent selection to disable spouse field
-  const handleParentChange = (value: any) => {
-    if (value && value.length > 0) {
+  const handleParentChange = (value: string | string[] | undefined) => {
+    if (value && Array.isArray(value) && value.length > 0) {
       form.setFieldsValue({ spouse: undefined });
     }
   };
 
   // Handle spouse selection to disable parent field
-  const handleSpouseChange = (value: any) => {
+  const handleSpouseChange = (value: string | undefined) => {
     if (value) {
       form.setFieldsValue({ parents: [] });
     }
   };
-
   const onUploadChange = (info: UploadChangeParam<UploadFile>) => {
     if (info.file.status === "done" || info.file.status === "uploading") {
       if (info.file.originFileObj) {
@@ -99,7 +94,7 @@ const ButtonAddMember = () => {
         reader.onload = () => {
           setImageUrl(reader.result as string);
           setImageFile(info.file.originFileObj as RcFile);
-          form.setFieldsValue({ image_url: reader.result });
+          // Không cập nhật form value vì gây lỗi forEach
         };
         reader.readAsDataURL(info.file.originFileObj);
       }
@@ -127,14 +122,9 @@ const ButtonAddMember = () => {
   const handleAdd = async (data: Record<string, any>) => {
     setLoading(true);
     try {
-      // Create FormData object
       const formData = new FormData();
-
-      // Add the basic fields
       formData.append("name", data.name);
       formData.append("gender", data.gender);
-
-      // Format and add dates if they exist
       if (data.date_of_birth) {
         formData.append(
           "date_of_birth",
@@ -148,40 +138,33 @@ const ButtonAddMember = () => {
           dayjs(data.date_of_death).format("YYYY-MM-DD")
         );
       }
-
-      // Add address
       if (data.permanent_address) {
         formData.append("permanent_address", data.permanent_address);
       }
-
-      // Add biography/description
-      if (data.biography) {
-        formData.append("description", data.biography);
+      // Lấy giá trị từ TinyMCE editor
+      const editorContent = editorRef.current
+        ? editorRef.current.getContent()
+        : "";
+      if (editorContent) {
+        formData.append("description", editorContent);
       }
-
-      // Add parent_id if selected
       if (data.parents && data.parents.length > 0) {
-        formData.append("parent_id", data.parents[0]); // Assuming we only take the first parent
+        formData.append("parent_id", data.parents);
       } else {
-        formData.append("parent_id", ""); // Empty string as in the curl example
+        formData.append("parent_id", "");
       }
-
-      // Add spouse_id if selected
       if (data.spouse) {
         formData.append("spouse_id", data.spouse);
       } else {
-        formData.append("spouse_id", ""); // Empty string as in the curl example
+        formData.append("spouse_id", "");
       }
-
-      // Add generation level (default to 1 as in the example)
       formData.append("generation_level", data.generation_level || "1");
 
-      // Add photo if it exists
       if (imageFile) {
-        formData.append("photo", imageFile);
+        formData.append("image", imageFile);
       }
+      console.log("Form data:", formData);
 
-      // Send the API request
       await addFamilyMemberMutation.mutateAsync(formData);
 
       message.success("Thành viên mới đã được thêm thành công!");
@@ -241,7 +224,6 @@ const ButtonAddMember = () => {
         </svg>
         Thêm Thành viên
       </button>
-
       <Modal
         title={
           <span className="text-lg font-bold text-gray-800">
@@ -255,10 +237,12 @@ const ButtonAddMember = () => {
         okText="Thêm"
         cancelText="Hủy"
         width={1000}
-        bodyStyle={{
-          padding: "24px",
-          maxHeight: "calc(100vh - 200px)",
-          overflowY: "auto",
+        styles={{
+          body: {
+            padding: "24px",
+            maxHeight: "calc(100vh - 200px)",
+            overflowY: "auto",
+          },
         }}
         okButtonProps={{
           style: { backgroundColor: "#8B0000", borderColor: "#8B0000" },
@@ -326,7 +310,6 @@ const ButtonAddMember = () => {
                   <Input className="border-gray-300 rounded-md" />
                 </Form.Item>
               </div>
-
               <div className="col-span-1">
                 <Form.Item
                   name="gender"
@@ -343,7 +326,6 @@ const ButtonAddMember = () => {
                   </Select>
                 </Form.Item>
               </div>
-
               <div className="col-span-1">
                 <Form.Item
                   name="date_of_birth"
@@ -358,7 +340,6 @@ const ButtonAddMember = () => {
                   />
                 </Form.Item>
               </div>
-
               <div className="col-span-1">
                 <Form.Item
                   name="date_of_death"
@@ -373,7 +354,6 @@ const ButtonAddMember = () => {
                   />
                 </Form.Item>
               </div>
-
               <div className="col-span-1">
                 <Form.Item
                   name="permanent_address"
@@ -383,8 +363,7 @@ const ButtonAddMember = () => {
                 >
                   <Input className="border-gray-300 rounded-md" />
                 </Form.Item>
-              </div>
-
+              </div>{" "}
               <div className="col-span-1 flex items-center justify-center">
                 <Form.Item
                   name="image_url"
@@ -393,8 +372,6 @@ const ButtonAddMember = () => {
                       Ảnh đại diện
                     </span>
                   }
-                  valuePropName="fileList"
-                  getValueFromEvent={(e) => e && e.fileList}
                   className="text-center"
                 >
                   <Upload
@@ -509,9 +486,9 @@ const ButtonAddMember = () => {
           </div>
 
           <div className="mb-4">
-            <h3 className="text-lg font-medium text-gray-800 mb-4">Tiểu sử</h3>
-            <Form.Item name="biography" className="mb-0">
-              {" "}
+            <h3 className="text-lg font-medium text-gray-800 mb-4">Tiểu sử</h3>{" "}
+            <Form.Item className="mb-0">
+              {/* Using Editor outside Form.Item's control for proper content handling */}
               <Editor
                 apiKey="1wtnubcqbaj7x0o55sxessku2gahfypx3jxzjn2tacvyg5i6"
                 onInit={(_evt, editor) => (editorRef.current = editor)}
@@ -544,8 +521,7 @@ const ButtonAddMember = () => {
             </Form.Item>
           </div>
         </Form>
-      </Modal>
-
+      </Modal>{" "}
       <Modal
         title={previewData?.name || "Xem nhanh thông tin thành viên"}
         open={showPreviewModal}
@@ -553,6 +529,7 @@ const ButtonAddMember = () => {
         footer={null}
         width={600}
         className="preview-modal"
+        styles={{ body: { padding: "24px" } }}
       >
         {previewData && (
           <div className="flex flex-col items-center">

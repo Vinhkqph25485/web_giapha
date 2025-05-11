@@ -2,9 +2,9 @@ import axios from 'axios';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Cookies from 'js-cookie'; // Need to install this package
 
-const API_URL = 'http://anticounterfeit.vn:8011/api/persons/family_tree/';
-const AUTH_API_URL = 'http://anticounterfeit.vn:8011/api/account/';
-const PERSON_API_URL = 'http://anticounterfeit.vn:8011/api/persons/';
+const API_URL = 'https://anticounterfeit.vn/api/persons/family_tree/';
+const AUTH_API_URL = 'https://anticounterfeit.vn/api/account/';
+const PERSON_API_URL = 'https://anticounterfeit.vn/api/persons/';
 
 // Helper function to get auth token from cookies
 const getAuthToken = () => {
@@ -179,7 +179,7 @@ export const apiService = {
 };
 
 // News API endpoints
-const NEWS_API_URL = 'http://anticounterfeit.vn:8011/api/news/';
+const NEWS_API_URL = 'https://anticounterfeit.vn/api/news/';
 
 // News API functions
 const fetchNewsArticles = async (params?: Record<string, any>) => {
@@ -340,7 +340,7 @@ const deleteFamilyMember = async (id: number) => {
 export const useFamilyMembers = (searchParams?: Record<string, any>) => {
   return useQuery({
     queryKey: ['familyMembers', searchParams],
-    queryFn: () => fetchFamilyMembers({gender: male, ...searchParams}),
+    queryFn: () => fetchFamilyMembers(searchParams),
   });
 };
 
@@ -359,6 +359,7 @@ export const useAddFamilyMember = () => {
     mutationFn: addFamilyMember,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['familyMembers'] });
+      queryClient.invalidateQueries({ queryKey: ['products'] });
     },
   });
 };
@@ -371,6 +372,7 @@ export const useUpdateFamilyMember = () => {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['familyMember', variables.id] });
       queryClient.invalidateQueries({ queryKey: ['familyMembers'] });
+      queryClient.invalidateQueries({ queryKey: ['products'] });
     },
   });
 };
@@ -382,6 +384,7 @@ export const useDeleteFamilyMember = () => {
     mutationFn: deleteFamilyMember,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['familyMembers'] });
+      queryClient.invalidateQueries({ queryKey: ['products'] });
     },
   });
 };

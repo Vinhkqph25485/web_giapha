@@ -1,18 +1,14 @@
 import { Route, Routes } from "react-router-dom";
 import "./App.css";
 import HomePage from "./pages/HomePage";
-import Navbar from "./components/Navbar";
-import Introduce from "./pages/Introduce";
 import { useProducts } from "./services/api";
 import Pedigree from "./pages/components/pedigree/Pedigree/Pedigree";
-import MyEditor from "./pages/NewPage";
 import NewsListPage from "./admin/NewsListPage";
 import NewsAddPage from "./admin/NewsAddPage";
 import NewsList from "./pages/NewsList";
 import LoginPage from "./pages/LoginPage";
 function App() {
   const { data: productsData, isLoading, isError } = useProducts();
-  console.log("products", productsData);
   
   return (
     <>

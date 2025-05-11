@@ -1,8 +1,7 @@
 import React, { useMemo, useState, useCallback, useEffect } from "react";
 import type { Node } from "relatives-tree/lib/types";
 import ReactFamilyTree from "react-family-tree";
-import { useLocation } from "react-router-dom"; // Add this import
-import { SourceSelect } from "../SourceSelect/SourceSelect";
+import { useLocation } from "react-router-dom";
 import { PinchZoomPan } from "../PinchZoomPan/PinchZoomPan";
 import { FamilyNode } from "../FamilyNode/FamilyNode";
 import { NODE_WIDTH, NODE_HEIGHT } from "../const";
@@ -13,13 +12,13 @@ import { NodeDetails } from "../NodeDetails/NodeDetails";
 import { useProducts, useUpdateProduct } from "../../../../services/api";
 import Navbar from "../../../../components/Navbar";
 import ButtonAddMember from "./component/ButtonAddMember";
+import { isAuthenticated } from "../../../../services/api";
 
 const Pedigree: React.FC = () => {
-  const location = useLocation(); // Get current location
-  const isPhaDoRoute = location.pathname === "/pha-do"; // Check if we're at "/pha-do" route
+  const location = useLocation(); 
+  const isPhaDoRoute = location.pathname === "/pha-do"; 
 
   const [searchValue, setSearchValue] = useState<string>("");
-  console.log("searchValuepppppp", searchValue);
 
   const {
     data: productsData,
@@ -31,8 +30,7 @@ const Pedigree: React.FC = () => {
 
   console.log("products", products);
   
-  const defaultSource = "Đại gia Đình"; // Định nghĩa mặc định
-  const [source, setSource] = useState<string>(defaultSource);
+  const defaultSource = "Đại gia Đình"; 
 
   const [nodes, setNodes] = useState<Node[]>(SOURCES1[defaultSource] || []);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
@@ -56,15 +54,6 @@ const Pedigree: React.FC = () => {
     }
   }, [firstNodeId]);
 
-  // Xử lý khi đổi source
-  const changeSourceHandler = useCallback((value: string) => {
-    const newNodes = SOURCES1[value] || [];
-    setRootId(newNodes.length > 0 ? newNodes[0].id : "");
-    setNodes(newNodes);
-    setSource(value);
-    setSelectId(undefined);
-    setHoverId(undefined);
-  }, []);
 
   // Lấy thông tin người được chọn
   const selected = useMemo(
@@ -163,7 +152,6 @@ const Pedigree: React.FC = () => {
             ? node.children.map((child) => ({ id: child.id, type: child.type }))
             : []
           : [],
-        // Tương tự đối với descendants
         descendants: isExpanded
           ? node.descendants
             ? node.descendants.map((descendant) => ({
@@ -179,23 +167,20 @@ const Pedigree: React.FC = () => {
     });
   }, [products, expanded]);
 
-  // Handle loading and error states
-
 
   return (
     <>
       <Navbar
         setSearchValue={setSearchValue}
-        hideSearch={isPhaDoRoute} // Pass hideSearch prop to Navbar
+        hideSearch={isPhaDoRoute} 
       />
       <div className="px-10 mx-auto">
         <div className="w-full h-screen font-light text-[#222] antialiased leading-[1.5]">
           <div className="h-screen my-2">
-            <div className={css.root}>
-              {isLoading && (
+            <div className={css.root}>              {isLoading && (
                 <div className="text-center p-4">Loading family data...</div>
               )}
-              <ButtonAddMember />
+              {isAuthenticated() && <ButtonAddMember />}
               <PinchZoomPan
                 min={0.1}
                 max={2.5}
