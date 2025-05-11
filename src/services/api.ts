@@ -5,6 +5,7 @@ import Cookies from 'js-cookie'; // Need to install this package
 const API_URL = 'https://anticounterfeit.vn/api/persons/family_tree/';
 const AUTH_API_URL = 'https://anticounterfeit.vn/api/account/';
 const PERSON_API_URL = 'https://anticounterfeit.vn/api/persons/';
+const HOMEPAGE_API_URL = 'https://anticounterfeit.vn/api/homepage/';
 
 // Helper function to get auth token from cookies
 const getAuthToken = () => {
@@ -396,4 +397,29 @@ export const familyMemberApiService = {
   addFamilyMember: addFamilyMember,
   updateFamilyMember: updateFamilyMember,
   deleteFamilyMember: deleteFamilyMember,
+};
+
+// Homepage API functions
+const fetchHomepageContent = async () => {
+  try {
+    const headers = getAuthHeaders();
+    const response = await axios.get(HOMEPAGE_API_URL, { headers });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching homepage content:', error);
+    throw error;
+  }
+};
+
+// React Query hook for homepage content
+export const useHomepageContent = () => {
+  return useQuery({
+    queryKey: ['homepageContent'],
+    queryFn: fetchHomepageContent,
+  });
+};
+
+// Export homepage API service
+export const homepageApiService = {
+  getHomepageContent: fetchHomepageContent,
 };

@@ -1,7 +1,7 @@
 import Footer from "../components/Footer";
 import { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
-import { useNewsArticles } from "../services/api";
+import { useNewsArticles, useHomepageContent } from "../services/api";
 import { Spin, message } from "antd";
 
 const images = [
@@ -22,8 +22,23 @@ const HomePage = () => {
     page_size: 12,
     is_published: true
   });
+    // Fetch homepage content from API
+  const {
+    data: homepageData,
+    isLoading: homepageLoading,
+    error: homepageError
+  } = useHomepageContent();
   
-  const [articles, setArticles] = useState([]);
+  interface NewsArticle {
+    id: number | string;
+    title: string;
+    date: string;
+    description: string;
+    image: string;
+    content: string;
+  }
+  
+  const [articles, setArticles] = useState<NewsArticle[]>([]);
   const [currentNewsIndex, setCurrentNewsIndex] = useState(0);
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
   const [showSlideshow, setShowSlideshow] = useState(false);
@@ -31,7 +46,17 @@ const HomePage = () => {
   // Process news data when it loads
   useEffect(() => {
     if (newsData && newsData.results) {
-      const transformedArticles = newsData.results.map(item => ({
+      // Define the type of news article from API
+      interface NewsApiItem {
+        id: number | string;
+        title: string;
+        created_at: string;
+        summary?: string;
+        content: string;
+        image?: string;
+      }
+      
+      const transformedArticles = newsData.results.map((item: NewsApiItem) => ({
         id: item.id,
         title: item.title,
         date: new Date(item.created_at).toLocaleDateString("vi-VN"),
@@ -44,13 +69,18 @@ const HomePage = () => {
       setShowSlideshow(transformedArticles.length > 3);
     }
   }, [newsData]);
+    // We don't need this useEffect anymore since we're directly rendering the content
+  // from homepageData?.results?.[0].content in the JSX
   
   // Show error if news fetch fails
   useEffect(() => {
     if (newsError) {
       message.error("Không thể tải tin tức. Vui lòng thử lại sau!");
     }
-  }, [newsError]);
+    if (homepageError) {
+      message.error("Không thể tải nội dung trang chủ. Vui lòng thử lại sau!");
+    }
+  }, [newsError, homepageError]);
   
   // Rotate banner image automatically
   useEffect(() => {
@@ -91,15 +121,14 @@ const HomePage = () => {
   const nextNewsSlide = () => {
     setCurrentNewsIndex((prevIndex) => (prevIndex + 3) % articles.length);
   };
-  
   // Get current articles to display (either all, or 3 for slideshow)
-  const getCurrentArticles = () => {
+  const getCurrentArticles = (): NewsArticle[] => {
     if (!showSlideshow || articles.length <= 3) {
       return articles.slice(0, 3);
     }
     
     // Return 3 articles starting from currentNewsIndex, with wraparound
-    const result = [];
+    const result: NewsArticle[] = [];
     for (let i = 0; i < 3; i++) {
       const index = (currentNewsIndex + i) % articles.length;
       result.push(articles[index]);
@@ -109,7 +138,7 @@ const HomePage = () => {
 
   return (
     <>
-      <Navbar />
+      <Navbar setSearchValue={() => {}} />
       <div className="bg-gray-100 min-h-screen">
         {/* Banner */}
         <div
@@ -136,40 +165,29 @@ const HomePage = () => {
         </div>
 
         {/* Nội dung chính */}
-        <div className="container mx-auto px-4 py-8">
-          {/* Giới thiệu */}
+        <div className="container mx-auto px-4 py-8">          {/* Giới thiệu */}
           <section className="bg-white p-6 md:p-8 rounded-lg shadow-md">
             <h2 className="text-2xl md:text-3xl font-semibold mb-4 text-gray-800">
               Lịch Sử Dòng Họ
             </h2>
-            <p className="text-gray-700 text-justify leading-relaxed">
-              Cây có gốc, nước có nguồn. Người ta ai cũng phải có tổ tiên, ông
-              bà cha mẹ thì mới có mình. Đó cũng là lẽ tất nhiên của loài người.
-              Vì vậy, đối với tổ tiên ai cũng phải tôn kính, phụng thờ, phải
-              biết ơn rõ công lao gây dựng và những ngày tiết lễ, kỵ nhật để
-              trân trọng thờ cúng. Báo đáp công ơn thể hiện lòng hiếu kính đối
-              với tổ tiên và các bậc tiền nhân đó cũng là nét đẹp văn hóa của
-              con người. Muốn biết được đức tính, sự nghiệp của tổ tiên để
-              truyền lại cho muôn đời con cháu mai sau phải có phả ký. Phả ký là
-              dẫn chứng cụ thể ghi rõ các đời, các vai hàng thứ tự trong từng
-              lớp hậu duệ của dòng họ theo hệ thống huyết mạch. Cho dù chế độ
-              đổi thay, nền văn hóa có tiến hóa đến đâu thì phả ký vẫn là dẫn
-              chứng cụ thể cần thiết không thể mai một được. Phả ký họ Trần Đại
-              Tộc chúng ta từ thửa xưa được ghi bằng chữ hán, đến năm 1975 cụ
-              Trần Viết Nhân, cụ Trần Ngọc Phan hậu duệ đời thứ 9 đã sưu tầm
-              thêm và dịch thành chữ quốc ngữ cho phù hợp với xu thế phát triển
-              của xã hội, thuận tiện cho con cháu trong họ tra cứu tìm tòi học
-              tập. Năm 1992 họ cử ra ban phả tiếp tục rà soát bổ sung dòng đời
-              của dòng họ. Từ năm 2016 ban phả họ bổ sung chỉnh sửa, hoàn chỉnh
-              cuốn phả họ được thông qua đại họ ngày 20/01/2018 (tức ngày 4
-              tháng chạp năm Đinh Dậu). Từ cơ sở nguồn dữ liệu văn bản này, để
-              đáp ứng nhu cầu tìm hiểu thông tin, con cháu ở mọi miền trong tổ
-              quốc. Dưới sự cho phép của Ban Thường trực dòng họ & Ban phả họ,
-              nhóm con cháu đang sinh sống & làm việc tại Hà Nội đã thực hiện số
-              hóa các dữ liệu này, hiển thị thông tin trên nền tảng Internet đảm
-              bảo nhiệm vụ lưu trữ và truyền tin, bắt kịp xu hướng công nghệ
-              4.0.
-            </p>
+            {homepageLoading ? (
+              <div className="flex justify-center items-center h-48">
+                <Spin size="large" tip="Đang tải nội dung..." />
+              </div>
+            ) : (
+              <div 
+                className="text-gray-700 text-justify leading-relaxed"
+                dangerouslySetInnerHTML={{ __html: homepageData?.results?.[0]?.content || `
+                  Cây có gốc, nước có nguồn. Người ta ai cũng phải có tổ tiên, ông
+                  bà cha mẹ thì mới có mình. Đó cũng là lẽ tất nhiên của loài người.
+                  Vì vậy, đối với tổ tiên ai cũng phải tôn kính, phụng thờ, phải
+                  biết ơn rõ công lao gây dựng và những ngày tiết lễ, kỵ nhật để
+                  trân trọng thờ cúng. Báo đáp công ơn thể hiện lòng hiếu kính đối
+                  với tổ tiên và các bậc tiền nhân đó cũng là nét đẹp văn hóa của
+                  con người.
+                ` }}
+              />
+            )}
           </section>
 
           {/* Danh sách tin tức */}
@@ -198,13 +216,14 @@ const HomePage = () => {
                       className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition"
                       onClick={() => window.location.href = `/tin-tuc/${news.id}`}
                       style={{ cursor: 'pointer' }}
-                    >
-                      <img
+                    >                      <img
                         src={news.image}
                         alt={news.title}
                         className="w-full h-40 md:h-48 object-cover rounded-md"
                         onError={(e) => {
-                          e.target.src = "https://via.placeholder.com/600x400?text=No+Image";
+                          if (e.target instanceof HTMLImageElement) {
+                            e.target.src = "https://via.placeholder.com/600x400?text=No+Image";
+                          }
                         }}
                       />
                       <h3 className="text-lg md:text-xl font-semibold text-blue-600 mt-3">
