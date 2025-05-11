@@ -37,16 +37,7 @@ const Footer = () => {
           {/* Cột 3: Tìm kiếm */}
           <div>
             <h2 className="text-lg font-semibold mb-3">TÌM KIẾM</h2>
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Tìm theo tên gọi"
-                className="w-full p-2 rounded-md text-black"
-              />
-              <button className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-orange-500 p-2 rounded-md text-white">
-                <FaSearch />
-              </button>
-            </div>
+           
             <h2 className="text-lg font-semibold mt-5">THỐNG KÊ DÒNG HỌ</h2>
             <p className="text-sm">
               👨‍👩‍👦 Nam: <span className="font-semibold">1941</span>
