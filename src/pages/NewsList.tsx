@@ -283,7 +283,6 @@ const NewsList = () => {
         </div>
       )}
 
-      <Footer />
     </div>
   );
 };
