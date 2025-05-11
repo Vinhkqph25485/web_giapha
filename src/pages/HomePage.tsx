@@ -225,7 +225,7 @@ const HomePage = () => {
                     <div
                       key={news.id}
                       className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition"
-                      onClick={() => window.location.href = `/tin-tuc/${news.id}`}
+                      onClick={() => window.location.href = `/tin-tuc/`}
                       style={{ cursor: 'pointer' }}
                     >                      <img
                         src={news.image}
