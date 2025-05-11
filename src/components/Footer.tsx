@@ -36,11 +36,12 @@ const Footer = () => {
 
           {/* Cột 3: Tìm kiếm */}
           <div>
-            <h2 className="text-lg font-semibold mb-3">TÌM KIẾM</h2>
-           
-            <h2 className="text-lg font-semibold mt-5">THỐNG KÊ DÒNG HỌ</h2>
-            <p className="text-sm">
-              👨‍👩‍👦 Nam: <span className="font-semibold">1941</span>
+            <h2 className="text-lg font-semibold mt-5 mb-2">THỐNG KÊ DÒNG HỌ</h2>
+            <p className="text-sm mb-2">
+              👨‍👩‍👦 Tổng số Nam: <span className="font-semibold">2000</span> <br />
+            </p>
+            <p className="text-sm mb-2">
+              👨‍👩‍👦 Tổng số Nữ: <span className="font-semibold">2000</span> <br />
             </p>
           </div>
         </div>

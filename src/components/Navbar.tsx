@@ -129,7 +129,9 @@ const Navbar: React.FC<NavbarProps> = ({
             } 
             md:relative md:flex-row md:w-auto
           `}
-          >            {displayMenuItems.map((item) => (
+          >
+            {" "}
+            {displayMenuItems.map((item) => (
               <li
                 key={item.name}
                 className={`relative px-5 py-3 text-white cursor-pointer transition-all duration-300 w-full md:w-auto ${
